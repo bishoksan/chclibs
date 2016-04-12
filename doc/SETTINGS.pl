@@ -32,3 +32,4 @@ doc_structure := 'chclibs_doc'-[
 	'wto',
 	'yices2_sat'].
 
+doc_formats := html.
