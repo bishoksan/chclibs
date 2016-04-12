@@ -11,7 +11,6 @@ doc_structure := 'chclibs_doc'-[
 	'canonical',
 	'common',
 	'cpascc',
-	'duplVar',
 	'flatnames',
 	% 'get_options',
 	'input_ppl',

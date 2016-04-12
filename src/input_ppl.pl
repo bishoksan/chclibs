@@ -4,15 +4,15 @@
 :- use_module(library(read)).
 :- use_module(library(dec10_io)).
 :- use_module(library(dynamic)).
-:- use_module(duplVar).
+:- use_module(chclibs(common), [writeAtomEq/4]).
 
 :- dynamic my_clause/2.
 
 :- dynamic inputtype/1.
 
 load_file(F,Type) :-
-    retractall(my_clause(_,_)),
-    assertz(inputtype(Type)),
+	retractall(my_clause(_,_)),
+	assertz(inputtype(Type)),
 	see(F),
 	remember_all,
 	seen.

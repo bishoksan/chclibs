@@ -1,14 +1,14 @@
 :- module(input_ppl_clausenum,[load_file/1,my_clause/3],[assertions, isomodes, doccomments]).
 
-:- dynamic my_clause/3.
-
 :- use_module(library(dynamic)).
 :- use_module(library(read)).
 :- use_module(library(lists)).
-:- use_module(duplVar).
+:- use_module(chclibs(common), [writeAtomEq/4]).
+
+:- dynamic my_clause/3.
 
 load_file(F) :-
-    retractall(my_clause(_,_,_)),
+	retractall(my_clause(_,_,_)),
 	open(F,read,S),
 	remember_all(S,1),
 	close(S).

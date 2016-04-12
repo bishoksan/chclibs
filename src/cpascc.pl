@@ -738,11 +738,11 @@ makeBpath(Body,BPath) :-
 	Body =.. [R1,X],
 	BPath =.. [path,[R1|X]].
 
- makeHpath(true,Head,HPath) :-
+makeHpath(true,Head,HPath) :-
         !,
         Head =.. [R|_],
         HPath =.. [initState,R].
- makeHpath(Body,Head,HPath) :-
+makeHpath(Body,Head,HPath) :-
 	Body =.. [R1,_X],
 	Head =.. [R,_],
 	HPath =.. [trans,R1,R].
