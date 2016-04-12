@@ -19,6 +19,7 @@
 :- use_module(chclibs(myterms)).
 :- use_module(chclibs(flatnames)).
 
+:- include(get_options).
 :- include(chclibs(common)).
 
 %% usage:  qa Infile -q "Query" [-o Outfile][-ans][-index][-builtin] 
