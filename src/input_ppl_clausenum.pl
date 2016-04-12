@@ -1,4 +1,4 @@
-:- module(input_ppl_clausenum,[load_file/1,my_clause/3],[]).
+:- module(input_ppl_clausenum,[load_file/1,my_clause/3],[assertions, isomodes, doccomments]).
 
 :- dynamic my_clause/3.
 

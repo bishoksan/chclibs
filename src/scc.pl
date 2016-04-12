@@ -4,7 +4,7 @@
 		scc_graph/3, 
 		scc_sharir/2,
 		makeGraph/3,
-		reducedGraph/3], []).
+		reducedGraph/3], [assertions, isomodes, doccomments]).
 
 % Strongly connected components based
 % on depth-first search of a graph.

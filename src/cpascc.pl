@@ -1,6 +1,9 @@
-:- module(cpascc, [main/1], []).
+:- module(cpascc, [main/1], [assertions, isomodes, doccomments]).
 
-% It also generates path FTA, modified by Bish on 21-01-2016
+%! \title Convex Polyhedra Analysis
+
+%  \module
+%    NOTE: It also generates path FTA (Bish on 21-01-2016)
 
 :- use_module(library(read)).
 :- use_module(library(write)).
@@ -107,15 +110,15 @@ main(ArgV) :-
 
 
 generateCEx:-
-    cEx('$NOCEX'),
-    !.
+	cEx('$NOCEX'),
+	!.
 generateCEx:-
-    cEx(CexFile),
-    buildversions2,
-    versioniterate,
-    open(CexFile,write,S),
-    findCounterexampleTrace(S),
-    close(S).
+	cEx(CexFile),
+	buildversions2,
+	versioniterate,
+	open(CexFile,write,S),
+	findCounterexampleTrace(S),
+	close(S).
 
 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -1,4 +1,4 @@
-:- module(linearize, [linearize/2, linear_constraint/1], []).
+:- module(linearize, [linearize/2, linear_constraint/1], [assertions, isomodes, doccomments]).
 
 :- use_module(library(lists)).
 

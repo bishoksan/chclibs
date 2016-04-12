@@ -3,7 +3,7 @@
 	yices_unsat/2,
 	yices_model/3,
 	true_in_model/2,
-	get_value_as_term/3], []).
+	get_value_as_term/3], [assertions, isomodes, doccomments]).
 
 :- use_module(library(write)).
 :- use_module(library(lists)).

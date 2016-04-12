@@ -1,4 +1,4 @@
-:- module(lcm, [transf/2], []).
+:- module(lcm, [transf/2], [assertions, isomodes, doccomments]).
 
 :- use_module(library(lists)).
 

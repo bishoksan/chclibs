@@ -4,6 +4,8 @@
 
 '$builder_hook'(desc_name('CHCLibs')).
 
+'$builder_hook'(manual_dir(as('doc', 'chclibs'))).
+
 % ============================================================================
 
 :- use_module(ciaobld(ciaoc_aux), [build_libs/2]).

@@ -9,7 +9,9 @@
 	number_atom/2,
 	convert2num/2,
 	dummyCList/2
-	], []).
+	], [assertions, isomodes, doccomments]).
+
+%! \title Some common useful predicates
 
 separate_constraints([],[],[]).
 separate_constraints([B|Bs],[C|Cs],Ds) :-

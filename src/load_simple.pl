@@ -1,4 +1,4 @@
-:- module(load_simple, [load_file/1,my_clause/3], []).
+:- module(load_simple, [load_file/1,my_clause/3], [assertions, isomodes, doccomments]).
 
 :- dynamic my_clause/3.
 

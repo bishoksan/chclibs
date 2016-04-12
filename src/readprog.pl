@@ -9,7 +9,7 @@
 		writeClauses/2,
 		writeClausespic/2,
 		applyVarNames/1,
-		writeTerms/2], []).
+		writeTerms/2], [assertions, isomodes, doccomments]).
 
 
 :- op(750,fx,type).

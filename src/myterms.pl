@@ -6,7 +6,7 @@
 		instanceIndex1/2,
 		removeDupls/2,
 		pruneAtoms/2,
-		pruneSolns/2], []).
+		pruneSolns/2], [assertions, isomodes, doccomments]).
 
 %%%CIAO/*
 :- use_module(library(terms_check)).

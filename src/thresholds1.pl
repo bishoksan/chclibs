@@ -1,4 +1,4 @@
-:- module(thresholds1, [main/1], []).
+:- module(thresholds1, [main/1], [assertions, isomodes, doccomments]).
 
 :- use_module(library(read)).
 :- use_module(library(write)).

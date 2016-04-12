@@ -2,8 +2,8 @@
 	start_ppl/0,
 	end_ppl/0,
 	getConstraint/2,
-    addConstraints/2,
-    addConstraint/2,
+	addConstraints/2,
+	addConstraint/2,
 	makePolyhedron/2,
 	copyPolyhedron/2,
 	satisfiable/2,
@@ -21,12 +21,12 @@
 	mapCoords/2,
 	rankingFunction_PR/2,
 	rankingFunction_MS/2,
-    allRankingFunctions_PR/2,
+	allRankingFunctions_PR/2,
 	polyhedronDimension/2,
 	maximizeExpr/4,
-    minimizeExpr/4,
+	minimizeExpr/4,
 	dropNonIntegerPoint/1
-], []).
+], [assertions, isomodes, doccomments]).
 
 :- use_module(library(ppl)).
 

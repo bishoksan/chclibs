@@ -5,7 +5,7 @@
 	 melteach/2,
 	 variable/1], [assertions, isomodes, doccomments]).
 
-%! @title Ground representation of terms
+%! \title Ground representation of terms
 
 :- use_module(library(write), [numbervars/3]).
 

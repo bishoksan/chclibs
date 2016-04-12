@@ -1,4 +1,4 @@
-:- module(wto, [main/1,wto/6,wto_file/3], []).
+:- module(wto, [main/1,wto/6,wto_file/3], [assertions, isomodes, doccomments]).
 
 % Finding widening points.  See Bourdoncle 1993.
 

@@ -1,4 +1,4 @@
-:- module(input_ppl, [load_file/2,my_clause/2], []).
+:- module(input_ppl, [load_file/2,my_clause/2], [assertions, isomodes, doccomments]).
 
 :- use_module(library(lists)).
 :- use_module(library(read)).

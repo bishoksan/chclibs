@@ -7,7 +7,7 @@
 	indexQueryClauses/3,
 	addInitQueries/3,
 	addIndexInitQueries/3,
-	makeIndexedAtom/5], []).
+	makeIndexedAtom/5], [assertions, isomodes, doccomments]).
 
 :- use_module(library(read)).
 :- use_module(library(write)).

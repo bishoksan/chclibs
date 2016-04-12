@@ -1,4 +1,4 @@
-:- module(duplVar, [writeAtomEq/4], []).
+:- module(duplVar, [writeAtomEq/4], [assertions, isomodes, doccomments]).
 
 %?- writeAtomEq(p(U,U,V,U,V,W),A,Es).
 

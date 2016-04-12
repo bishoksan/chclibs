@@ -1,4 +1,12 @@
-:- module(builtins, [sp_builtin/1, builtin/1], []).
+:- module(builtins, [sp_builtin/1, builtin/1],
+	[assertions, isomodes, doccomments]).
+
+%! \title Builtin table
+%
+%  \module Fake module table for partially deal with Ciao programs
+%
+% TODO: This should be configurable (set of builtins depends on
+%   imports and input language, which is very flexible in Ciao)
 
 sp_builtin(G) :-
 	functor(G,F,N),

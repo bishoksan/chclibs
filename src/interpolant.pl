@@ -15,7 +15,7 @@
 % computeInterpolant([B,D],[D>100,B=D-10],[D>90, D=<101,B>91],Ints),
 %
 
-:- module(interpolant, [makeRealVars/2, computeInterpolant/4], []).
+:- module(interpolant, [makeRealVars/2, computeInterpolant/4], [assertions, isomodes, doccomments]).
 
 :- use_module(library(write)).
 
