@@ -1,12 +1,9 @@
-:- module(linearize,[linearize/2,  linear_constraint/1], []).
+:- module(linearize, [linearize/2, linear_constraint/1], []).
 
 :- use_module(library(lists)).
 
+:- use_module(chclibs(common)).
 
-:- include(common).
-
-recognised_option(_,_,_). % this is needed due to common.pl include
-	
 %%%%%%%%%%%%
 %
 % Linearise

@@ -14,13 +14,13 @@
 :- use_module(input_ppl_clausenum).
 :- use_module(ppl_ops).
 
-:- include(get_options).
-:- include(common).
+:- use_module(chclibs(common)).
+
+:- include(chclibs(get_options)).
 
 :- dynamic(fact/2).
 :- dynamic(prop/2).
 :- dynamic(abstract/0).
-
 
 recognised_option('-prg',  programO(R),[R]).
 recognised_option('-o',    outputFile(R),[R]).

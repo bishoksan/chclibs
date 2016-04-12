@@ -1,3 +1,15 @@
+:- module(common, [
+	separate_constraints/3,
+	constraint/2,
+	constraint1/2,
+	list2Conj/2,
+	conj2List/2,
+	listofList2Disj/2,
+	max_member/2,
+	number_atom/2,
+	convert2num/2,
+	dummyCList/2
+	], []).
 
 separate_constraints([],[],[]).
 separate_constraints([B|Bs],[C|Cs],Ds) :-

@@ -7,6 +7,8 @@
 :- use_module(library(aggregates)).
 :- use_module(library(dynamic)).
 
+:- use_module(chclibs(common)).
+
 :- use_module(setops).
 :- use_module(canonical).
 :- use_module(wto).
@@ -19,8 +21,7 @@
 :- use_module(ppl_ops).
 :- use_module(scc).
 
-:- include(get_options).
-:- include(common).
+:- include(chclibs(get_options)).
 
 :- dynamic(flag/1).
 :- dynamic(currentflag/1).

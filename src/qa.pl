@@ -18,9 +18,9 @@
 :- use_module(chclibs(canonical)).
 :- use_module(chclibs(myterms)).
 :- use_module(chclibs(flatnames)).
+:- use_module(chclibs(common)).
 
-:- include(get_options).
-:- include(chclibs(common)).
+:- include(chclibs(get_options)).
 
 %% usage:  qa Infile -q "Query" [-o Outfile][-ans][-index][-builtin] 
 %% qa pumpStates1.pl -q "pumpSystem" -o qpumpStates.pl
