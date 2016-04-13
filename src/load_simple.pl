@@ -11,6 +11,7 @@
 :- use_module(library(lists)).
 :- use_module(library(dynamic)).
 :- use_module(library(read)).
+:- use_module(common, [conj2List/2]).
 
 load_file(F) :-
 	retractall(my_clause(_,_,_)),
@@ -27,24 +28,20 @@ remember_all(S,K) :-
 	  remember_all(S,K1)
 	).
 
+% Drop all non-execute/specialize clauses
+remember_clause(A, _) :- var(A), !. % Drop
+remember_clause((:- _), _):- !.
 remember_clause((A :- B), K) :- !,
-	conj2list(B,BL),
+	conj2List(B,BL),
 	makeClauseId(K,CK),
 	assertz(my_clause(A,BL,CK)).
 remember_clause(A,K) :-
 	makeClauseId(K,CK),
-	assertz(my_clause(A,[],CK)),
-	!.
-%Drop all non-execute/specialize clauses
-remember_clause((:- _),_).
+	assertz(my_clause(A,[],CK)).
 
 makeClauseId(K,CK) :-
 	name(K,NK),
 	append("c",NK,CNK),
 	name(CK,CNK).
 
-conj2list((A,As),[A|LAs]) :-
-	!,
-	conj2list(As,LAs).
-conj2list(A,[A]).
 

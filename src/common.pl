@@ -85,15 +85,12 @@ dummyCList([C|Cs],[C=C|Cs1]) :-
 constraint1(X, Xs):-
 	functor(X, P, _),
 	name(P, [44]),
+	% this is to avoid recognizing "," as a functor rather than a collection of constraints
 	conj2List(X, Xs). %44 is for commas
 
-
-%this is to avoid recognizing "," as a functor rather than a collection of constraints
-conj2List((A, (B)), [A|R]):-
-    !,
-    conj2List(B,R).
-conj2List((A), [A]).
-
+conj2List((A, B), [A|R]) :- !,
+	conj2List(B,R).
+conj2List(A, [A]).
 
 %! writeAtomEq(A,A1,Eqs0,Eqs1):
 %    Remove duplicate variables from A, introducing fresh variables
