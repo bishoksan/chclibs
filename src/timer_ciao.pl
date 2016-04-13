@@ -1,5 +1,10 @@
 :- module(timer_ciao, [start_time/0, end_time/1, end_time/2], [assertions, isomodes, doccomments]).
 
+%! \title Statistics for Ciao
+%
+
+% TODO: Add more functionality
+
 :- use_module(library(write)).
 :- use_module(library(prolog_sys)).
 

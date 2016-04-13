@@ -1,5 +1,12 @@
 :- module(thresholds1, [main/1], [assertions, isomodes, doccomments]).
 
+%! \title Widening thresholds
+%
+%  \module
+%    Computing widening thresholds for QA program
+
+% TODO: document algorithm
+
 :- use_module(library(read)).
 :- use_module(library(write)).
 :- use_module(library(dynamic)).
