@@ -1,16 +1,17 @@
-:- module(scc, [main/1,
-		fscc/2, scc/3, 
+:- module(scc, [fscc/2, scc/3, 
 		make_callgraph/3, 
 		scc_graph/3, 
 		scc_sharir/2,
 		makeGraph/3,
 		reducedGraph/3], [assertions, isomodes, doccomments]).
 
-% Strongly connected components based
-% on depth-first search of a graph.
-% Algorithm by M. Sharir, adapted from
-% Baase and Van Gelder, Chapter 7.5
-% JPG 20/8/01
+%! \title Strongly connected components
+%
+%  \module
+%    Strongly connected components based on depth-first search of a graph.
+%    Algorithm by M. Sharir, adapted from
+%    Baase and Van Gelder, Chapter 7.5
+%    (JPG 20/8/01)
 
 :- use_module(library(write)).
 :- use_module(readprog).
@@ -47,27 +48,27 @@ scc(Ps,Prog,Cs) :-
 	%writePredGraph(G,'wgraph.txt'),
 	scc_sharir(G,Cs).
 	
-writePredGraph(G,'wgraph.txt') :-
-	write('End make callgraph'),nl,
-	traverse_tree(G,GT),
-	open('wgraph.txt',write,S),
-	writeGraph(GT,GT1,[]),
-	writeq(S,GT1),write(S,'.'),
-	write(S,[]),write(S,'.'),
-	close(S).
+%writePredGraph(G,'wgraph.txt') :-
+%	write('End make callgraph'),nl,
+%	traverse_tree(G,GT),
+%	open('wgraph.txt',write,S),
+%	writeGraph(GT,GT1,[]),
+%	writeq(S,GT1),write(S,'.'),
+%	write(S,[]),write(S,'.'),
+%	close(S).
 	
-writeGraph([],G,G).
-writeGraph([rec(X,links(F,_))|GT],GT0,GT2) :-
-	flinks(F,X,GT0,GT1),
-	writeGraph(GT,GT1,GT2).
+%writeGraph([],G,G).
+%writeGraph([rec(X,links(F,_))|GT],GT0,GT2) :-
+%	flinks(F,X,GT0,GT1),
+%	writeGraph(GT,GT1,GT2).
 	
-flinks([],_,G,G).
-flinks([Y|Ys],X,[X-Y|G0],G1) :-
-	flinks(Ys,X,G0,G1).
+%flinks([],_,G,G).
+%flinks([Y|Ys],X,[X-Y|G0],G1) :-
+%	flinks(Ys,X,G0,G1).
 	
-weightedEdgeList([],[]).
-weightedEdgeList([V|Vs],[V-1|Vs1]) :-
-	weightedEdgeList(Vs,Vs1).
+%weightedEdgeList([],[]).
+%weightedEdgeList([V|Vs],[V-1|Vs1]) :-
+%	weightedEdgeList(Vs,Vs1).
 	
 
 % compute sccs of a digraph (given as a list of edges and vertices)

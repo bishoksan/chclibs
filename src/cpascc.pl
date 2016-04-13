@@ -697,8 +697,8 @@ headversion(Head,_,Hk) :-
 stateSymb(H,R) :-
 	functor(H,F,_),
 	name(F,T),
-	append(_,[95|Xs],T),
-	\+ member(95,Xs),
+	append(_,[0'_|Xs],T),
+	\+ member(0'_,Xs),
 	name(R,Xs).
 
 unaryBody([V],[X],VX) :-

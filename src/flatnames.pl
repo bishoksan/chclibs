@@ -19,7 +19,7 @@ flat_name(A,A1) :-
 	As =.. [G|Args],
 	name(F,Fn),
 	name(G,Gn),
-	append(Gn,[95|Fn],An),
+	append(Gn,[0'_|Fn],An),
 	name(H,An),
 	A1 =.. [H|Args].
 flat_name(A,A).
@@ -55,7 +55,7 @@ flatten_denotes(denotes(T,V),Den) :-
 	T =.. [F|Xs],
 	name(denotes,Dn),
 	name(F,Fn),
-	append(Dn,[95|Fn],DFn),
+	append(Dn,[0'_|Fn],DFn),
 	name(DF,DFn),
 	append(Xs,[V],Ys),
 	Den =.. [DF|Ys].

@@ -5,6 +5,7 @@
 	list2Conj/2,
 	conj2List/2,
 	listofList2Disj/2,
+	list2Disj/2,
 	max_member/2,
 	number_atom/2,
 	convert2num/2,
@@ -22,6 +23,7 @@ separate_constraints([B|Bs],[C|Cs],Ds) :-
 separate_constraints([B|Bs],Cs,[B|Ds]) :-
 	separate_constraints(Bs,Cs,Ds).
 
+% TODO: Move this translation to the program reader
 constraint(X=Y, X=Y).
 constraint(X=:=Y, X=Y).
 constraint(X is Y, X = Y).
@@ -35,35 +37,37 @@ constraint(_=\=_,0=0).
 constraint(true,0=0).
 constraint(fail,1=0).
 
-
-list2Conj([A], (A)):-
-    !.
-list2Conj([A|R], (A,R1)):-
-    !,
-list2Conj(R, R1).
+list2Conj([A], (A)):- !.
+list2Conj([A|R], (A,R1)):- !,
+	list2Conj(R, R1).
 list2Conj([], (true)). % meaning true
 
-listofList2Disj([A], (A1)):-
-    !,
-    list2Conj(A, A1).
-listofList2Disj([A|R], ((A1);R1)):-
-    !,
-    list2Conj(A, A1),
-    listofList2Disj(R, R1).
+listofList2Disj([A], (A1)):- !,
+	list2Conj(A, A1).
+listofList2Disj([A|R], ((A1);R1)):- !,
+	list2Conj(A, A1),
+	listofList2Disj(R, R1).
 listofList2Disj([], (1=0)). %meaning false
+
+list2Disj([A], A):-
+	!.
+list2Disj([A|R], (A;R1)):-
+	!,
+	list2Disj(R, R1).
+list2Disj([], (1=0)).
 
 
 number_atom(N, A) :- number_codes(N, C), atom_codes(A, C).
 
 max_member([X], X).
 max_member([X|R], M):-
-    !,
-    max_member(R, Max),
-    max(X,Max, M).
+	!,
+	max_member(R, Max),
+	max(X,Max, M).
 
 max(X, Y, X):-
-    X>=Y,
-    !.
+	X>=Y,
+	!.
 max(_, Y, Y).
 
 convert2num(A,A) :-
@@ -75,13 +79,13 @@ convert2num(A,A1) :-
 
 dummyCList([],[]).
 dummyCList([C|Cs],[C=C|Cs1]) :-
-    dummyCList(Cs,Cs1).
+	dummyCList(Cs,Cs1).
 
 %this is for removing the brackets
 constraint1(X, Xs):-
-    functor(X, P, _),
-    name(P, [44]),
-    conj2List(X, Xs). %44 is for commas
+	functor(X, P, _),
+	name(P, [44]),
+	conj2List(X, Xs). %44 is for commas
 
 
 %this is to avoid recognizing "," as a functor rather than a collection of constraints

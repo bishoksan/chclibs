@@ -37,7 +37,7 @@ main(ArgV) :-
 	atomicprops,
 	%facts2props,
 	%write('Writing out threshold facts'),
-	nl,
+	%nl,
 	showallprops(OutS),
 	nl(OutS),
 	close(OutS),

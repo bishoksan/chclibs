@@ -6,29 +6,35 @@
 filepath := '../src'.
 
 doc_structure := 'chclibs_doc'-[
-	'balanced_tree',
-	'builtins',
-	'canonical',
-	'common',
+	% Transformations and analysis
 	'cpascc',
-	'flatnames',
-	% 'get_options',
+	'qa',
+	'scc',
+	'thresholds1',
+	'wto',
+	'linearize',
+	% Program readers, writers, and internal representation
+	'load_simple',
 	'input_ppl',
 	'input_ppl_clausenum',
-	'interpolant',
-	'lcm',
-	'linearize',
-	'load_simple',
-	'myterms',
-	'normalize_constraints',
-	'ppl_ops',
-	'qa',
 	'readprog',
-	'scc',
+	'builtins',
+	% Program internal representation
+	'canonical',
+	'myterms',
+	'flatnames',
+	% Solvers
+	'ppl_ops',
+	'yices2_sat',
+	'interpolant'-[
+	  'normalize_constraints',
+	  'lcm'
+	],
+	% Auxiliary, data structures, etc.
+	% 'get_options',
+	'common',
+	'balanced_tree',
 	'setops',
-	'thresholds1',
-	'timer_ciao',
-	'wto',
-	'yices2_sat'].
+	'timer_ciao'].
 
-doc_formats := html.
+docformat := html.

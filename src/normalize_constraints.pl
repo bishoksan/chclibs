@@ -1,13 +1,17 @@
-% converts const into AX<=b
-:- module(normalize_constraints, _, [assertions, isomodes, doccomments]).
+:- module(normalize_constraints, [normalizeConstraints/3], [assertions, isomodes, doccomments]).
+
+%! \title Constraint normalization for interpolant
+%
+%  \module
+%    Converts const into `AX<=b` (for interpolant generation)
 
 :- use_module(library(write)).
 :- use_module(library(lists)).
 
-go:-
-    numbervars(A,0,_),
-    normalizeConstraints([1*A < 90], [A], C),
-    write(C).
+go :-
+	numbervars(A,0,_),
+	normalizeConstraints([1*A < 90], [A], C),
+	write(C).
 
 normalizeConstraints([], _,[]).
 normalizeConstraints([C|Cs], VarList, Cs2):-
@@ -31,10 +35,10 @@ normalizeConstraint(T1<T2, VarList, C):-
 	append(R1,R2, Right),
 	list2NonList(Left,LeftNL),
 	list2NonList(Right,RightNL),
-    C= [LeftNL  <  RightNL].
+	C = [LeftNL < RightNL].
 %this is valid over integer
     %RightNL1 is RightNL - 1,
-	%C= [LeftNL  =<  RightNL1].
+	%C= [LeftNL =< RightNL1].
 normalizeConstraint(T1>T2, VarList, C):-
 	normalizeConstraint(T2<T1, VarList, C).
 normalizeConstraint(T1>=T2, VarList, C):-
@@ -145,8 +149,7 @@ addRight(L1,L2, [L]):-
 	list2NonList(L2, L2N),
 	L is L1N + L2N.	
 
-subLeft(L1,[], L1):-
-!.
+subLeft(L1,[], L1):- !.
 subLeft([],L2, [L3]):- 
 	list2NonList(L2, L2NL),
 	L3 is 0 - L2NL,
@@ -187,19 +190,7 @@ formatNumber(+(N), N):-number(N),!.
 formatNumber(-(N), K):-number(N), K is 0-N,!.
 formatNumber(N,N):-number(N),!.
 
-member2(X, [X|_]):-!.        
-                        
-member2(X, [_|Tail]) :-   
-  member2(X, Tail).
+member2(X, [X|_]) :- !.
+member2(X, [_|Tail]) :-
+	member2(X, Tail).
   
-  
-
-/*  
-remove_paren(A+(B), A+B).
-remove_paren((A)+B, A+B).
-remove_paren((A)+(B), A+B).
-remove_paren(A,A).
-*/
- 
-	      			
-			

@@ -11,42 +11,38 @@
 		applyVarNames/1,
 		writeTerms/2], [assertions, isomodes, doccomments]).
 
-
-:- op(750,fx,type).
-% 
-% Limitations.  Input program consists of definite clauses.
-%               Doesn't handle metagoals like if-then-else, disjunction, bagof etc.
-%               Maybe the ciaopp program parser will enable this later.
-
-% Usage 1
-% readprog(+File,-Program).
-
-% +File - a filename containing the program to be transformed
-% -Program - a list containing the program clauses.
-%            - first element of list a term predicates(Ps) where Ps
-%              is a list of the predicates in the transformed program.
-%            - remaining elements, terms clause((H :- B), Vs) where H:-B
-%              is a clause, Vs is a binding list with the
-%              original variable names.
-%           
+%! \title Program reader
 %
-% Example query (using naive reverse program)
+%  \module
+%    This module is used in other components (like \lib{qa},
+%    \lib{scc}, etc.).
 %
-%       ?- readprog('rev.pl', Cls).
+%    Limitations: 
+%     - Input program consists of definite clauses.
+%     - Doesn't handle metagoals like if-then-else, disjunction, bagof etc.
+%     - Maybe the ciaopp program parser will enable this later.
 %
-% Ps = [predicates([rev/2,app/3]),
-%       cl((rev([],[]):-true),[]),
-%       cl((rev([_B|_C],_D):-rev(_C,_A),app(_A,[_B],_D)),
-%              ['Ws'=_A,'X'=_B,'Xs'=_C,'Ys'=_D]),
-%       cl((app([],_E,_E):-true),['Ys'=_E]),
-%       cl((app([_F|_G],_H,[_F|_I]):-app(_G,_H,_I)),
-%              ['X'=_F,'Xs'=_G,'Ys'=_H,'Zs'=_I])] 
-
-
-
-%:- use_package(assertions).
-
-:- op(1150, fx, entry).
+%    Usage: `readprog(+File,-Program)`
+%     - `File`: a filename containing the program to be transformed
+%     - `Program`: a list containing the program clauses.
+%         - first element of list a term predicates(Ps) where Ps
+%           is a list of the predicates in the transformed program.
+%         - remaining elements, terms clause((H :- B), Vs) where H:-B
+%           is a clause, Vs is a binding list with the
+%           original variable names.
+%
+%    Example query (using naive reverse program)
+%    ```ciao
+%    ?- readprog('rev.pl', Cls).
+%    
+%    Ps = [predicates([rev/2,app/3]),
+%          cl((rev([],[]):-true),[]),
+%          cl((rev([_B|_C],_D):-rev(_C,_A),app(_A,[_B],_D)),
+%                 ['Ws'=_A,'X'=_B,'Xs'=_C,'Ys'=_D]),
+%          cl((app([],_E,_E):-true),['Ys'=_E]),
+%          cl((app([_F|_G],_H,[_F|_I]):-app(_G,_H,_I)),
+%                 ['X'=_F,'Xs'=_G,'Ys'=_H,'Zs'=_I])]
+%    ```
 
 :- use_module(library(read)).
 :- use_module(library(write)).
@@ -57,11 +53,6 @@
 %:- use_package(runtime_ops).
 
 :- dynamic(myClause/3).
-
-:- op(1150, fx, residual).
-:- op(1150, fx, filter).
-
-
 
 readprog(F,Prog) :-
 	open(F,read,Stream),
@@ -139,7 +130,7 @@ read_clauses(Stream,cl((:- entry(_,_)),_),Ps,N,M,Out) :-
 	!,
 	read_clause(Stream,C1),
 	read_clauses(Stream,C1,Ps,N,M,Out).
-read_clauses(Stream,cl((:- entry _),_,_),Ps,N,M,Out) :-
+read_clauses(Stream,cl((:- entry(_)),_,_),Ps,N,M,Out) :-
 	!,
 	read_clause(Stream,C1),
 	read_clauses(Stream,C1,Ps,N,M,Out).
@@ -407,33 +398,32 @@ writeClausespic([predicates(_)|Cls],S) :-
 writeClausespic([clause((A :- _B),_Ws)|BCls],Stream) :-
 	%drop 'is_query'
         A =.. [F|_],
-        name(F, [105,115,95,113,117,101,114,121]),
+        F = 'is_query',
 	!,
 	writeClausespic(BCls,Stream).
 writeClausespic([clause((A :- _B),_Ws)|BCls],Stream) :-
 	%drop '\\==_query'
         A =.. [F|_],
-        name(F, [92,61,61,95,113,117,101,114,121]),
+        F = '\\==_query',
 	!,
 	writeClausespic(BCls,Stream).
 writeClausespic([clause((A :- _B),_Ws)|BCls],Stream) :-
 	%drop '=<_query'
         A =.. [F|_],
-        name(F, [61,60,95,113,117,101,114,121]),
+        F = '=<_query',
 	!,
 	writeClausespic(BCls,Stream).
 writeClausespic([clause((A :- _B),_Ws)|BCls],Stream) :-
 	%drop '>=_query'
         A =.. [F|_],
-        name(F, [62,61,95,113,117,101,114,121]),
+        F = '>=_query',
 	!,
 	writeClausespic(BCls,Stream).
 
 writeClausespic([clause((A :- B),_Ws)|BCls],Stream) :-
 	%Only select '_query'
         A =.. [F|_],
-        name(F,Fna),
-        append(_,[95,113,117,101,114,121],Fna),
+        atom_concat(_, '_query', F),
 	!,
 	%applyVarNames(Ws),
 	writeq(Stream,A),

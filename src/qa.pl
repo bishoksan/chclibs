@@ -22,31 +22,38 @@
 
 :- include(chclibs(get_options)).
 
-%% usage:  qa Infile -q "Query" [-o Outfile][-ans][-index][-builtin] 
-%% qa pumpStates1.pl -q "pumpSystem" -o qpumpStates.pl
-%% qa pumpStates1.pl -q "pumpSystem" -o qpumpStates.pl -ans
-%% qa pumpStates1.pl -q "pumpSystem" -o qpumpStates.pl -ans -index
-%% qa mc91.pl -q "ineed(_,_)" -index
-
-%% Default output = user_output
-%% Default options noans, noindex, nobuiltin
+%! \title Query-answer transformation
+%
+%  \module
+%
+%    Usage:
+%    ```
+%    qa Infile -q "Query" [-o Outfile][-ans][-index][-builtin]
+%
+%    The options are interpreted as follows:
+%
+%    -ans :  generates answer predicates such as rev_ans(X,Y) for rev(X,Y)
+%    -index : generates a different query for each occurrence of a body call
+%    -builtin : generates calls for builtins
+%    ```
+%
+%    Examples:
+%    ```
+%    qa pumpStates1.pl -q "pumpSystem" -o qpumpStates.pl
+%    qa pumpStates1.pl -q "pumpSystem" -o qpumpStates.pl -ans
+%    qa pumpStates1.pl -q "pumpSystem" -o qpumpStates.pl -ans -index
+%    qa mc91.pl -q "ineed(_,_)" -index
+%    ```
+%
+%    Default output = `user_output`
+%    Default options `noans`, `noindex`, `nobuiltin`
 
 %% E.g. previous version called with
 %% qa "Query" outfile
 %% would now be called as
 %% qa -q "Query" -o outfile 
 
-%% The options are interpreted as follows
-
-%% -ans :  generates answer predicates such as rev_ans(X,Y) for rev(X,Y)
-%% -index : generates a different query for each occurrence of a body call
-%% -builtin : generates calls for builtins
-
-%% Default output (if -o outfile is not present) = user_output
-%% Default options noans, noindex, nobuiltin
-	
-	
-% Possible extension - add a version where only calls are of interest.  
+% TODO: Possible extension - add a version where only calls are of interest.
 % The answers to predicates that only appear as the last call in clause
 % bodies are not needed.
 
@@ -320,16 +327,8 @@ joingoals(X,Xs,(X,Xs)) :-
         X =.. [F|_],
         F \== ','.
 
-:- use_module(library(system), [system/1]).
+% TODO: read_from_atom/2 is buggy!
+:- use_module(library(read_from_string), [read_from_atom/2]).
 
 convertQueryString(Q,Q1) :-
-        open('/tmp/querystring',write,S),
-        write(S,Q),
-        write(S,'.'),
-        nl(S),
-        close(S),
-        open('/tmp/querystring',read,S1),
-        read(S1,Q1),
-        close(S1),
-        system('rm /tmp/querystring').
-
+	read_from_atom(Q,Q1).

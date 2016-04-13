@@ -24,7 +24,7 @@
 % TODO: can be optimized (do not use read_from_string, =.., etc.)
 
 :- use_module(library(write)).
-
+:- use_module(library(lists)).
 :- use_module(library(ppl)).
 :- use_module(library(terms_vars)).
 :- use_module(library(strings)).
@@ -34,11 +34,11 @@
 :- use_module(lcm).
 :- use_module(setops).
 :- use_module(normalize_constraints).
-:- use_module(library(lists)).
 :- use_module(ppl_ops).
 :- use_module(linearize).
 :- use_module(yices2_sat).
 :- use_module(ciao_yices(ciao_yices_2)).
+:- use_module(common, [list2Disj/2]).
 
 
 testall :-
@@ -447,19 +447,12 @@ makeRealVars([], []).
 makeRealVars([V|Vs], [(V,real)|VReals]):-
 	makeRealVars(Vs, VReals).
 
-list2Disj([A], (A)):-
-	!.
-list2Disj([A|R], ((A);R1)):-
-	!,
-	list2Disj(R, R1).
-list2Disj([], (1=0)).
-
 
 simplifyInterpolant(E1, E3):-
 	simplifyInterpolantConstr(E1, E2),
 	transf(E2,E3).
 
 
-stringToNum(S,T):-
+stringToNum(S,T):- % TODO: inefficient!
 	read_from_string(S,T).
 
