@@ -776,10 +776,10 @@ findCounterexampleTrace(S) :-
 		findTrace(Goal,J),
 		write(S,counterexample(X)),
 		write(S,'.'),
-		nl(S),
-		write(user_output,X),
-		write(user_output,'.'),
-		nl(user_output)),
+		nl(S)),
+%		write(user_output,X),
+%		write(user_output,'.'),
+%		nl(user_output)),
 	[_|_]).
 findCounterexampleTrace(S) :-
 	write(S,'safe'),
