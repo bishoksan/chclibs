@@ -31,9 +31,9 @@ constraint(X>Y, X>Y).
 constraint(X>=Y, X>=Y).
 constraint(X=<Y, X=<Y).
 constraint(X<Y, X<Y).
-
-constraint(_\==_,0=0).
-constraint(_=\=_,0=0).
+%
+constraint(_\==_,0=0). % TODO: document (drops constraint)
+constraint(_=\=_,0=0). % TODO: document (drops constraint)
 constraint(true,0=0).
 constraint(fail,1=0).
 
