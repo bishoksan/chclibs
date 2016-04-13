@@ -158,7 +158,7 @@ makeInterpolant(VsMatrix, Phi,X,I,Delta,Lambda,Mu,A,B,_,_,C) :-
 	],Phi1,[]),
 	append(Phi1,Phi,Psi),
 	makeRealVars(VsMatrix, VReals),
-	yices_model(Psi,VReals,Model),
+	yices_model_keepsubst(Psi,VReals,Model), % TODO: or yices_model/3?
 	!,
 	write('Case 1'),nl,
 	getValuesI(Model, [Delta|I], [ValueDelta|ValuesI]),
@@ -172,7 +172,7 @@ makeInterpolant(VsMatrix, Phi,X,I,Delta,Lambda,Mu,A,B,[],_,C) :-
 		],Phi1,[]),
 	append(Phi1,Phi,Psi),
 	makeRealVars(VsMatrix, VReals),
-	yices_model(Psi,VReals,Model),
+	yices_model_keepsubst(Psi,VReals,Model), % TODO: or yices_model/3?
 	!,
 	write('Case 2.1'),nl,
 	getValuesI(Model, [Delta|I], [ValueDelta|ValuesI]),
@@ -196,7 +196,7 @@ makeInterpolant2_3(VsMatrix, Phi,X,I,Delta,LambdaLt,_,C) :-
 	list2Disj(Phi2, Phi2Disj),
 	append(Phi,[Phi2Disj],Psi),
 	makeRealVars(VsMatrix, VReals),
-	yices_model(Psi,VReals,Model),
+	yices_model_keepsubst(Psi,VReals,Model), % TODO: or yices_model/3?
 	write('Case 2'),nl,
 	!,
 	getValuesI(Model, [Delta|I], [ValueDelta|ValuesI]),
@@ -212,7 +212,7 @@ makeInterpolant2_3(VsMatrix, Phi,X,I,Delta,_,MuLt,C) :-
 	list2Disj(Phi2, Phi2Disj),
 	append(Phi,[Phi2Disj],Psi),
 	makeRealVars(VsMatrix, VReals),
-	yices_model(Psi,VReals,Model),
+	yices_model_keepsubst(Psi,VReals,Model), % TODO: or yices_model/3?
 	write('Case 3'),nl,
 	!,
 	getValuesI(Model, [Delta|I], [ValueDelta|ValuesI]),
@@ -452,7 +452,7 @@ list2Disj([A], (A)):-
 list2Disj([A|R], ((A);R1)):-
 	!,
 	list2Disj(R, R1).
-list2Disj([], (1=1)).
+list2Disj([], (1=0)).
 
 
 simplifyInterpolant(E1, E3):-

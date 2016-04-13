@@ -2,8 +2,11 @@
 	yices_sat/2,
 	yices_unsat/2,
 	yices_model/3,
+	yices_model_keepsubst/3,
 	true_in_model/2,
-	get_value_as_term/3], [assertions, isomodes, doccomments]).
+	get_value_as_term/3,
+	makeYicesIntVars/2
+   ], [assertions, isomodes, doccomments]).
 
 :- use_module(library(write)).
 :- use_module(library(lists)).
@@ -14,7 +17,7 @@
 yices_sat(E,Vars) :-
 	expr2yices(E,Y),
 	!,
-	write_string(Y),nl,
+	%write_string(Y),nl,
 	declareVars(Vars),
 	yices_context(Ctx),
 	yices_parse_term(Y,T),
@@ -29,7 +32,7 @@ yices_unsat(E,Vars) :-
 	expr2yices(E,Y),
 	!,
 	%write('SMT formula: '), nl,
-    %write_string(Y),nl,
+	%write_string(Y),nl,
 	declareVars(Vars),
 	yices_context(Ctx),
 	yices_parse_term(Y,T),
@@ -38,22 +41,30 @@ yices_unsat(E,Vars) :-
 	%write(StatusName),nl,
 	StatusName==unsatisfiable,
 	yices_free_context(Ctx).
-	
+
+% (do not include eliminated variables)
 yices_model(E,Vars,M) :-
+	yices_model_(E,Vars,0,M).
+	
+% (may include eliminated variables)
+yices_model_keepsubst(E,Vars,M) :-
+	yices_model_(E,Vars,1,M).
+
+yices_model_(E,Vars,KeepSubst, M) :-
 	expr2yices(E,Y),
-    %write('clp formula '), nl,
-    %write(E), nl,
+	%write('clp formula '), nl,
+	%write(E), nl,
 	!,
-    %write('SMT formula: '), nl,
-    %write_string(Y),nl,
+	%write('SMT formula: '), nl,
+	%write_string(Y),nl,
 	declareVars(Vars),
 	yices_context(Ctx),
 	yices_parse_term(Y,T),
 	yices_assert_formula(Ctx,T,_Status),
 	yices_check(Ctx,StatusName),
 	StatusName==satisfiable,
-    %flag to indicates whether the model should include eliminated variables
-	yices_get_model(Ctx,1,M).
+	% (the model should include eliminated variables)
+	yices_get_model(Ctx,KeepSubst,M).
 
 	
 true_in_model(E,M) :-
@@ -174,3 +185,7 @@ reportErrorState :-
 	yices_error_string(E),
 	write_string(E),
 	nl.
+
+makeYicesIntVars([], []).
+makeYicesIntVars([V|Vs], [(V,int)|VReals]):-
+	makeYicesIntVars(Vs, VReals).
