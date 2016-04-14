@@ -18,6 +18,7 @@
 :- use_module(builtins).
 :- use_module(setops).
 :- use_module(readprog).
+:- use_module(common, [memb1/2]).
 
 main([F]) :-
 	readprog(F,Cls),
@@ -354,11 +355,6 @@ insertp(X,L,[X|L]).
 %	!.
 %insertp(X,[Y|Xs],[Y|Ys]) :-
 %	insertp(X,Xs,Ys).
-
-
-memb1(X,[X|_]) :- !.
-memb1(X,[_|Xs]) :-
-	memb1(X,Xs).
 
 
 parenthesise([],_,_,[]) :-

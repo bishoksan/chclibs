@@ -19,6 +19,7 @@
 :- use_module(library(lists)).
 :- use_module(builtins).
 :- use_module(setops).
+:- use_module(common, [memb1/2]).
 
 % scc(Ps,Prog,Cs):   
 % scc(+,+,-):
@@ -232,11 +233,6 @@ insertp(X,L,L) :-
 	!.
 insertp(X,L,[X|L]).
 
-
-memb1(X,[X|_]) :-
-	!.
-memb1(X,[_|Xs]) :-
-	memb1(X,Xs).
 	
 % starting from a list of vertices and links,
 % make an adjacency list representation of the graph 

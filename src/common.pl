@@ -10,7 +10,8 @@
 	number_atom/2,
 	convert2num/2,
 	dummyCList/2,
-	writeAtomEq/4
+	writeAtomEq/4,
+	memb1/2
 	], [assertions, isomodes, doccomments]).
 
 %! \title Some common useful predicates
@@ -122,3 +123,9 @@ replaceDupl(X1,[X2|Xs],XK,[XK|Xs]) :-
 	!.
 replaceDupl(X,[X1|Xs],Y,[X1|Xs1]) :-
 	replaceDupl(X,Xs,Y,Xs1).
+
+
+memb1(X,[X|_]) :- !.
+memb1(X,[_|Xs]) :-
+	memb1(X,Xs).
+
