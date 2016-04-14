@@ -26,20 +26,20 @@
 	maximizeExpr/4,
 	minimizeExpr/4,
 	dropNonIntegerPoint/1
-], [assertions, isomodes, doccomments]).
+    ], [assertions, isomodes, doccomments]).
+
+%! \title Constraint relations using PPL
 
 :- use_module(library(ppl)).
-
-% Constraint relations using PPL
 
 getConstraint(H,Cs0) :-
 	ppl_Polyhedron_get_minimized_constraints(H,Cs0).
 
 addConstraints(H,C):-
-    ppl_Polyhedron_add_constraints(H,C).
+	ppl_Polyhedron_add_constraints(H,C).
 
 addConstraint(H,C):-
-    ppl_Polyhedron_add_constraint(H,C).
+	ppl_Polyhedron_add_constraint(H,C).
 	
 makePolyhedron(Cs,H1)  :-
 	ppl_new_NNC_Polyhedron_from_constraints(Cs,H1).
@@ -111,13 +111,13 @@ polyhedronDimension(H,K) :-
 	ppl_Polyhedron_space_dimension(H,K).
 
 maximizeExpr(P, Expr, CoNum, CoDen):-
-    ppl_Polyhedron_maximize(P, Expr, CoNum, CoDen, _).
+	ppl_Polyhedron_maximize(P, Expr, CoNum, CoDen, _).
 
 minimizeExpr(P, Expr, CoNum, CoDen):-
-    ppl_Polyhedron_minimize(P, Expr, CoNum, CoDen, _).
+	ppl_Polyhedron_minimize(P, Expr, CoNum, CoDen, _).
 
 dropNonIntegerPoint(H0):-
-    ppl_Polyhedron_drop_some_non_integer_points(H0,polynomial).
+	ppl_Polyhedron_drop_some_non_integer_points(H0,polynomial).
 
 start_ppl :-
 	ppl_initialize.

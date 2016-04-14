@@ -5,7 +5,7 @@
 	yices_model_keepsubst/3,
 	true_in_model/2,
 	get_value_as_term/3,
-	makeYicesIntVars/2
+	yices_vars/3
    ], [assertions, isomodes, doccomments]).
 
 :- use_module(library(write)).
@@ -186,6 +186,6 @@ reportErrorState :-
 	write_string(E),
 	nl.
 
-makeYicesIntVars([], []).
-makeYicesIntVars([V|Vs], [(V,int)|VReals]):-
-	makeYicesIntVars(Vs, VReals).
+yices_vars([], _Type, []).
+yices_vars([V|Vs], Type, [(V,Type)|VTs]):-
+	yices_vars(Vs, Type, VTs).

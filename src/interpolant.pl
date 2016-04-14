@@ -1,4 +1,4 @@
-:- module(interpolant, [makeRealVars/2, computeInterpolant/4], [assertions, isomodes, doccomments]).
+:- module(interpolant, [computeInterpolant/4], [assertions, isomodes, doccomments]).
 
 %! \title Interpolant of two Sets of Constraints
 %
@@ -157,7 +157,7 @@ makeInterpolant(VsMatrix, Phi,X,I,Delta,Lambda,Mu,A,B,_,_,C) :-
             [Lambda]*A + [Mu]*B =< [[-1]]
 	],Phi1,[]),
 	append(Phi1,Phi,Psi),
-	makeRealVars(VsMatrix, VReals),
+	yices_vars(VsMatrix, real, VReals),
 	yices_model_keepsubst(Psi,VReals,Model), % TODO: or yices_model/3?
 	!,
 	write('Case 1'),nl,
@@ -171,7 +171,7 @@ makeInterpolant(VsMatrix, Phi,X,I,Delta,Lambda,Mu,A,B,[],_,C) :-
 			[Lambda]*A + [Mu]*B =< [[0]]
 		],Phi1,[]),
 	append(Phi1,Phi,Psi),
-	makeRealVars(VsMatrix, VReals),
+	yices_vars(VsMatrix, real, VReals),
 	yices_model_keepsubst(Psi,VReals,Model), % TODO: or yices_model/3?
 	!,
 	write('Case 2.1'),nl,
@@ -195,7 +195,7 @@ makeInterpolant2_3(VsMatrix, Phi,X,I,Delta,LambdaLt,_,C) :-
 	genConstraints([[LambdaLt] > [ZeroLambdaLt]], Phi2, []),
 	list2Disj(Phi2, Phi2Disj),
 	append(Phi,[Phi2Disj],Psi),
-	makeRealVars(VsMatrix, VReals),
+	yices_vars(VsMatrix, real, VReals),
 	yices_model_keepsubst(Psi,VReals,Model), % TODO: or yices_model/3?
 	write('Case 2'),nl,
 	!,
@@ -211,7 +211,7 @@ makeInterpolant2_3(VsMatrix, Phi,X,I,Delta,_,MuLt,C) :-
 	genConstraints([[MuLt] > [ZeroMuLt]], Phi2, []),
 	list2Disj(Phi2, Phi2Disj),
 	append(Phi,[Phi2Disj],Psi),
-	makeRealVars(VsMatrix, VReals),
+	yices_vars(VsMatrix, real, VReals),
 	yices_model_keepsubst(Psi,VReals,Model), % TODO: or yices_model/3?
 	write('Case 3'),nl,
 	!,
@@ -441,12 +441,6 @@ simplifyTerm(D*X+C3,C) :-
 allZeroCoeffs(0*_).
 allZeroCoeffs(0*_+C) :-
 	allZeroCoeffs(C).
-
-%making real yices variables
-makeRealVars([], []).
-makeRealVars([V|Vs], [(V,real)|VReals]):-
-	makeRealVars(Vs, VReals).
-
 
 simplifyInterpolant(E1, E3):-
 	simplifyInterpolantConstr(E1, E2),
