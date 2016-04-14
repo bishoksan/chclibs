@@ -28,9 +28,8 @@ remember_all(S,K) :-
 	  remember_all(S,K1)
 	).
 
-% Drop all non-execute/specialize clauses
 remember_clause(A, _) :- var(A), !. % Drop
-remember_clause((:- _), _):- !.
+remember_clause((:- _), _):- !. % Drop all non-execute/specialize clauses
 remember_clause((A :- B), K) :- !,
 	conj2List(B,BL),
 	makeClauseId(K,CK),

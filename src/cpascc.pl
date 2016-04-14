@@ -20,7 +20,7 @@
 :- use_module(library(ppl)).
 :- use_module(library(lists)).
 :- use_module(timer_ciao).
-:- use_module(input_ppl_clausenum).
+:- use_module(program_loader).
 :- use_module(ppl_ops).
 :- use_module(scc).
 
