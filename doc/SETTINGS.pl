@@ -15,7 +15,6 @@ doc_structure := 'chclibs_doc'-[
 	'linearize',
 	% Program readers, writers, and internal representation
 	'load_simple',
-	'input_ppl',
 	'input_ppl_clausenum',
 	'readprog',
 	'builtins',

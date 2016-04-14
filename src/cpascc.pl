@@ -20,7 +20,7 @@
 :- use_module(library(ppl)).
 :- use_module(library(lists)).
 :- use_module(timer_ciao).
-:- use_module(input_ppl).
+:- use_module(input_ppl_clausenum).
 :- use_module(ppl_ops).
 :- use_module(scc).
 
@@ -95,7 +95,7 @@ main(ArgV) :-
 	set_options(Options,File,FactFile),
 	initialise,
 	start_time,
-	load_file(File,pl),
+	load_file(File),
 	dependency_graph(Es,Vs),
 	scc_graph(Es,Vs,G),
 	start_ppl,
@@ -173,7 +173,7 @@ not_converged :-
 convexhull_operation(Ps) :-
 	member(P/N,Ps),
 	functor(H,P,N),
-	my_clause(H,B),
+	my_clause(H,B,_),
 	operator(H,B),
 	fail.
 convexhull_operation(_).
@@ -194,7 +194,7 @@ narrow1(X):-
 	narrow1(Y).
 	
 narrowIteration :- 
-	my_clause(H,B),
+	my_clause(H,B,_),
 	narrowOperator(H,B),
 	fail.
 narrowIteration.
@@ -474,7 +474,7 @@ assertWP(widening_point(X)) :-
 
 dependency_graph(Es,Vs) :-
 	findall(P/N-Q/M, (
-			my_clause(H,Bs),
+			my_clause(H,Bs,_),
 			functor(H,P,N),
 			member(B,Bs),
 			\+ constraint(B,_),
@@ -486,7 +486,7 @@ dependency_graph(Es,Vs) :-
 			(A=X; A=Y)
 			),
 			Vs1),
-	findall(P/N, (my_clause(H,_),functor(H,P,N)), Vs2),
+	findall(P/N, (my_clause(H,_,_),functor(H,P,N)), Vs2),
 	append(Vs1,Vs2,Vs).		
 	
 
@@ -641,7 +641,7 @@ versioniterate :-
 versioniterate.
 
 versionoperator :-
-	my_clause(Head,B),
+	my_clause(Head,B,_),
 	retract(clauseCount(K)),
 	K1 is K+1,
 	assertz(clauseCount(K1)),
