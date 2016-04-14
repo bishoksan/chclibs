@@ -1,7 +1,6 @@
 :- module(common, [
 	separate_constraints/3,
 	constraint/2,
-	constraint1/2,
 	list2Conj/2,
 	conj2List/2,
 	listofList2Disj/2,
@@ -32,7 +31,6 @@ constraint(X>Y, X>Y).
 constraint(X>=Y, X>=Y).
 constraint(X=<Y, X=<Y).
 constraint(X<Y, X<Y).
-%
 constraint(_\==_,0=0). % TODO: document (drops constraint)
 constraint(_=\=_,0=0). % TODO: document (drops constraint)
 constraint(true,0=0).
@@ -81,13 +79,6 @@ convert2num(A,A1) :-
 dummyCList([],[]).
 dummyCList([C|Cs],[C=C|Cs1]) :-
 	dummyCList(Cs,Cs1).
-
-%this is for removing the brackets
-constraint1(X, Xs):-
-	functor(X, P, _),
-	name(P, [44]),
-	% this is to avoid recognizing "," as a functor rather than a collection of constraints
-	conj2List(X, Xs). %44 is for commas
 
 conj2List((A, B), [A|R]) :- !,
 	conj2List(B,R).
