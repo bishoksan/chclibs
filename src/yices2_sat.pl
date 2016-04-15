@@ -110,7 +110,7 @@ exp_(neg(X)) --> !,
 exp_(apply1(Fun, X)) --> !, % apply to a function1
 	"(",exp_(Fun)," ",exp_(X),")".
 exp_(update1(Fun, X, Y)) --> !, % update a function1
-	"(",exp_(Fun)," ","(",exp_(X),")",exp_(Y),")".
+	"(","update"," ",exp_(Fun)," ","(",exp_(X),")",exp_(Y),")".
 exp_('$VAR'(N)) --> !,
 	{ name(N,I) },
 	str("x"||I).
