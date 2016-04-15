@@ -83,6 +83,20 @@ exp_([]) --> !, "true".
 exp_((X;Y)) --> !, "(","or ",exp_(X)," ",exp_(Y),")".
 exp_((X,Y)) --> !,
 	"(","and ",exp_(X)," ",exp_(Y),")".
+exp_((X->Y)) --> !, % TODO: what is this?
+	"(","=> ",exp_(X)," ",exp_(Y),")".
+exp_(neg(X)) --> !,
+	"(","not ",exp_(X),")".
+% Equality
+exp_((X=Y)) --> !,
+	"(","= ",exp_(X)," ",exp_(Y),")".
+% Constraints for arrays
+% TODO: apply1, update1 avoids temporary variables (is it better?)
+exp_(read(F,X,V)) --> !,
+	exp_((V = apply1(F,X))).
+exp_(write(F,X,V,F2)) --> !,
+	exp_((F2 = update1(F,X,V))).
+% Constraints for LIA
 exp_((X<Y)) --> !,
 	"(","< ",exp_(X)," ",exp_(Y),")".
 exp_((X>Y)) --> !,
@@ -91,6 +105,7 @@ exp_((X=<Y)) --> !,
 	"(","<= ",exp_(X)," ",exp_(Y),")".
 exp_((X>=Y)) --> !,
 	"(",">= ",exp_(X)," ",exp_(Y),")".
+% (expressions) % TODO: do not merge?
 exp_((X*Y)) --> !,
 	"(","* ",exp_(X)," ",exp_(Y),")".
 exp_((X+Y)) --> !,
@@ -99,14 +114,8 @@ exp_((X-Y)) --> !,
 	"(","- ",exp_(X)," ",exp_(Y),")".
 exp_(-(X)) --> !,
 	"(","- ",exp_(X),")".
-exp_((X=Y)) --> !,
-	"(","= ",exp_(X)," ",exp_(Y),")".
 exp_(xor(X,Y)) --> !,
 	"(","xor ",exp_(X)," ",exp_(Y),")".
-exp_((X->Y)) --> !, % TODO: what is this?
-	"(","=> ",exp_(X)," ",exp_(Y),")".
-exp_(neg(X)) --> !,
-	"(","not ",exp_(X),")".
 exp_(apply1(Fun, X)) --> !, % apply to a function1
 	"(",exp_(Fun)," ",exp_(X),")".
 exp_(update1(Fun, X, Y)) --> !, % update a function1
