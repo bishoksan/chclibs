@@ -21,14 +21,11 @@
 %   ```
 %
 
-% TODO: can be optimized (do not use read_from_string, =.., etc.)
-
 :- use_module(library(write)).
 :- use_module(library(lists)).
 :- use_module(library(ppl)).
 :- use_module(library(terms_vars)).
 :- use_module(library(strings)).
-:- use_module(library(read_from_string)).   % converting to string to rational, real or any number
 
 :- use_module(canonical).
 :- use_module(lcm).
@@ -40,22 +37,20 @@
 :- use_module(ciao_yices(ciao_yices_2)).
 :- use_module(common, [list2Disj/2]).
 
-
+% (test)
 testall :-
-
 	numbervars([X,Y,Z],0,_),
-	go([X,Y,Z],[Z<0, X =< Z, Y =< X],[Y=<0, X+Y>=0])
-,
-
+	go([X,Y,Z],[Z<0, X =< Z, Y =< X],[Y=<0, X+Y>=0]),
+	%
 	go([X,Y,Z],[Y=<0, X+Y>=0],[Z<0, X =< Z, Y =< X]),
 	go([X,Y], [X=0, Y=0], [X > Y]),
 	go([X,Y], [X=0, Y=0], [X=0, Y=0, X > Y]),
 	go([X,Y], [X > Y], [X=0, Y=0]),
 	go([X], [X >= 0], [X < 0]),
 	go([X], [X < 0], [X >= 0]),
-
-	go([X], [X < -2], [X >= 0])
-,
+	%
+	go([X], [X < -2], [X >= 0]),
+	%
 	go([X], [X > -1, X =< 1], [X > 1]),
 	go([X,Y,Z], [X = 0, Y=Z], [X+Y > Z]),
 	go([X,Y],[X=Y], [X > Y]),
@@ -71,7 +66,7 @@ testall :-
 	go([A,B,C,D,E],[E=0,D=B,D>=0], [C=0,E=0,A=C+1,D=1,A>B]),
 	go([A,B,C,D,E],[A=1,B=1],[E=0,D=B,D>=0,C=0,E=0,A=C+1,D=1,A>B]).
 
-
+% (test)
 go(Xs,C1,C2) :-
 	start_ppl,
 	write('interpolant of '), write(C1), write(' and '), write(C2), write(' is: '),
@@ -79,17 +74,15 @@ go(Xs,C1,C2) :-
 	ppl_finalize,
 	write(C3),nl.
 
-/*
-go :-
-	numbervars([A,B,C,D], 0,_),
-	start_ppl,
-	interpolant:computeInterpolant([A,B,C,D],[D>100,B=D-10],[C>100,D=C-10,A=<100,C=A+11,A=<100,B>91],Ints),
-	%interpolant:computeInterpolant([A,B],[B-A=10],[B>90, B=<101,A>91],Ints),
-	%interpolant:computeInterpolant([A,B],[-1*B+1*A=< -10,B+ -1*A=<10],[-1*B< -90,B=<101,-1*A< -91],Ints),
-	%interpolant:computeInterpolant([A,B],[A-B=10],[A-B<10],Ints),
-	%interpolant:computeInterpolant([B,D],[-D < -100, B-D=< -10, -B+D =< 10],[-D > -90, D=<101, -B< -91],Ints),
-	write('Interpolant is '), write(Ints), nl.
-*/
+%% go :-
+%% 	numbervars([A,B,C,D], 0,_),
+%% 	start_ppl,
+%% 	interpolant:computeInterpolant([A,B,C,D],[D>100,B=D-10],[C>100,D=C-10,A=<100,C=A+11,A=<100,B>91],Ints),
+%% 	%interpolant:computeInterpolant([A,B],[B-A=10],[B>90, B=<101,A>91],Ints),
+%% 	%interpolant:computeInterpolant([A,B],[-1*B+1*A=< -10,B+ -1*A=<10],[-1*B< -90,B=<101,-1*A< -91],Ints),
+%% 	%interpolant:computeInterpolant([A,B],[A-B=10],[A-B<10],Ints),
+%% 	%interpolant:computeInterpolant([B,D],[-D < -100, B-D=< -10, -B+D =< 10],[-D > -90, D=<101, -B< -91],Ints),
+%% 	write('Interpolant is '), write(Ints), nl.
 
 % if the first constraint is unsat then the interpolant is false
 computeInterpolant(_,A,_,[0=1]) :-
@@ -165,21 +158,20 @@ makeInterpolant(VsMatrix, Phi,X,I,Delta,Lambda,Mu,A,B,_,_,C) :-
 	enumerateTerm([ValuesI]*X,[[Ts]]),
 	C3 =.. ['=<',Ts,ValueDelta],
 	simplifyInterpolant(C3,C).
-/*
-makeInterpolant(VsMatrix, Phi,X,I,Delta,Lambda,Mu,A,B,[],_,C) :-
-	genConstraints([
-			[Lambda]*A + [Mu]*B =< [[0]]
-		],Phi1,[]),
-	append(Phi1,Phi,Psi),
-	yices_vars(VsMatrix, real, VReals),
-	yices_model_keepsubst(Psi,VReals,Model), % TODO: or yices_model/3?
-	!,
-	write('Case 2.1'),nl,
-	getValuesI(Model, [Delta|I], [ValueDelta|ValuesI]),
-	enumerateTerm([ValuesI]*X,[[Ts]]),
-	C3 =.. ['=<',Ts,ValueDelta],
-	simplifyInterpolant(C3,C).
-*/
+
+%% makeInterpolant(VsMatrix, Phi,X,I,Delta,Lambda,Mu,A,B,[],_,C) :-
+%% 	genConstraints([
+%% 			[Lambda]*A + [Mu]*B =< [[0]]
+%% 		],Phi1,[]),
+%% 	append(Phi1,Phi,Psi),
+%% 	yices_vars(VsMatrix, real, VReals),
+%% 	yices_model_keepsubst(Psi,VReals,Model), % TODO: or yices_model/3?
+%% 	!,
+%% 	write('Case 2.1'),nl,
+%% 	getValuesI(Model, [Delta|I], [ValueDelta|ValuesI]),
+%% 	enumerateTerm([ValuesI]*X,[[Ts]]),
+%% 	C3 =.. ['=<',Ts,ValueDelta],
+%% 	simplifyInterpolant(C3,C).
 
 makeInterpolant(VsMatrix, Phi,X,I,Delta,Lambda,Mu,A,B,LambdaLt,MuLt,C) :-
 	genConstraints([
@@ -223,9 +215,8 @@ makeInterpolant2_3(VsMatrix, Phi,X,I,Delta,_,MuLt,C) :-
 getIntValueTerm(Model, Term, IntValue):-
 	get_value_as_term(Model, Term, Value),
 	yices_term_to_string(Value, 20,1, 0, Value2), %converting yices term to string
-	%write_string(Value2), nl,
-	%changes sting code to atoms
-	stringToNum(Value2, IntValue).
+	% TODO: Make sure that the grammar is compatible with number_codes/2
+	number_codes(IntValue, Value2).
 
 getValuesI(_, [], []).
 getValuesI(Model, [L|Lambdas], [LV|LambdaValues]):-
@@ -445,8 +436,4 @@ allZeroCoeffs(0*_+C) :-
 simplifyInterpolant(E1, E3):-
 	simplifyInterpolantConstr(E1, E2),
 	transf(E2,E3).
-
-
-stringToNum(S,T):- % TODO: inefficient!
-	read_from_string(S,T).
 

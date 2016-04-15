@@ -10,7 +10,7 @@
 
 %! \title Higher level interface to Yices SMT solver
 
-:- use_module(library(format)).
+%:- use_module(library(format)).
 :- use_module(library(lists)).
 :- use_module(library(strings)).
 
