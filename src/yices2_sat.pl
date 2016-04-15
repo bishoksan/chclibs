@@ -9,6 +9,9 @@
    ], [assertions, isomodes, doccomments, dcg]).
 
 %! \title Higher level interface to Yices SMT solver
+%
+%  \module
+%    See `expr2yices/2` code for the accepted expressions.
 
 %:- use_module(library(format)).
 :- use_module(library(lists)).
@@ -104,6 +107,10 @@ exp_((X->Y)) --> !, % TODO: what is this?
 	"(","=> ",exp_(X)," ",exp_(Y),")".
 exp_(neg(X)) --> !,
 	"(","not ",exp_(X),")".
+exp_(apply1(Fun, X)) --> !, % apply to a function1
+	"(",exp_(Fun)," ",exp_(X),")".
+exp_(update1(Fun, X, Y)) --> !, % update a function1
+	"(",exp_(Fun)," ","(",exp_(X),")",exp_(Y),")".
 exp_('$VAR'(N)) --> !,
 	{ name(N,I) },
 	str("x"||I).
@@ -125,7 +132,8 @@ declareVars([]).
 yices_declare_var(real, V) :- yices_declare_real(V).
 yices_declare_var(int, V) :- yices_declare_int(V).
 yices_declare_var(bool, V) :- yices_declare_bool(V).
-	
+yices_declare_var(function1(Tau,Range), V) :-
+	yices_declare_function1(Tau,Range,V).
 
 check_no_error(S) :-
 	( S<0 -> report_error
