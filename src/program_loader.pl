@@ -2,17 +2,19 @@
 	load_file/1,my_clause/3
    ],[assertions, isomodes, doccomments]).
 
-%! \title Program clauses) loader
+%! \title Program (Horn clauses) loader
 %
 %  \module
 %    Load clauses in `my_clause/3` (keeps a unique identifer for each
 %    clause). Drops any `:- _` declaration.
 %
 
+% TODO: merge with load_simple.pl
+
 :- use_module(library(dynamic)).
 :- use_module(library(read)).
 :- use_module(library(lists)).
-:- use_module(chclibs(common), [writeAtomEq/4, conj2List/2]).
+:- use_module(chclibs(common), [conj2List/2, occurs/2]).
 
 :- dynamic my_clause/3.
 
@@ -57,9 +59,31 @@ makeClauseId(K,CK) :-
 	append("c",NK,CNK),
 	name(CK,CNK).
 
+bodyconstraints([],[],Cs,Cs).
+bodyconstraints([B|Bs],[B|Bs1],Cs0,Cs1) :-
+	constraint(B,_),
+	!,
+	bodyconstraints(Bs,Bs1,Cs0,Cs1).
+bodyconstraints([B|Bs],[B2|Bs1],Cs0,Cs1) :-
+	atomconstraints(B,Cs0,BCs1,B1),
+	writeAtomEq(B1,B2,Es0,Es1),
+	BCs1=Es0,
+	bodyconstraints(Bs,Bs1,Es1,Cs1).
+	
+constraint(X=Y, X=Y).
+constraint(X=:=Y, X=Y).
+constraint(X is Y, X = Y).
+constraint(X>Y, X>Y).
+constraint(X>=Y, X>=Y).
+constraint(X=<Y, X=<Y).
+constraint(X<Y, X<Y).
+
 conc([],L,L).
 conc([A|L1],L2,[A|L3]) :-
 	conc(L1,L2,L3).
+
+% ---------------------------------------------------------------------------
+% TODO: Document
 
 atomconstraints(H,Cs0,Cs1,H1) :-
 	H =.. [P|Xs],
@@ -79,27 +103,34 @@ genConstraints([X|Xs],[X|Ys],Cs0,Cs1) :-
 genConstraints([T|Xs],[Y|Ys],[Y=T|Cs0],Cs1):-
 	genConstraints(Xs,Ys,Cs0,Cs1).
 
-occurs(X,[Y|_]) :-
-	X == Y,
-	!.
-occurs(X,[_|Ys]) :-
-	occurs(X,Ys).
-
-bodyconstraints([],[],Cs,Cs).
-bodyconstraints([B|Bs],[B|Bs1],Cs0,Cs1) :-
-	constraint(B,_),
-	!,
-	bodyconstraints(Bs,Bs1,Cs0,Cs1).
-bodyconstraints([B|Bs],[B2|Bs1],Cs0,Cs1) :-
-	atomconstraints(B,Cs0,BCs1,B1),
-	writeAtomEq(B1,B2,Es0,Es1),
-	BCs1=Es0,
-	bodyconstraints(Bs,Bs1,Es1,Cs1).
+%! writeAtomEq(A,A1,Eqs0,Eqs1):
+%    Remove duplicate variables from A, introducing fresh variables
+%    and unifications
 	
-constraint(X=Y, X=Y).
-constraint(X=:=Y, X=Y).
-constraint(X is Y, X = Y).
-constraint(X>Y, X>Y).
-constraint(X>=Y, X>=Y).
-constraint(X=<Y, X=<Y).
-constraint(X<Y, X<Y).
+% Example:
+% ```
+% ?- writeAtomEq(p(U,U,V,U,V,W),A,Es,[]).
+%
+% A = p(U,_A,V,_B,_C,W),
+% Es = [U=_A,U=_B,V=_C] 
+% ```
+
+writeAtomEq(A,A1,Eqs0,Eqs1) :-
+	A =.. [P|Xs],
+	removeDupls(Xs,Xs1,Eqs0,Eqs1),
+	A1 =.. [P|Xs1].
+	
+removeDupls([],[],Es,Es).
+removeDupls([X|Xs],Xs2,[X=Y|Eqs0],Eqs1) :-
+	replaceDupl(X,Xs,Y,Xs1),
+	!,
+	removeDupls([X|Xs1],Xs2,Eqs0,Eqs1).
+removeDupls([X|Xs],[X|Xs1],Eqs0,Eqs1) :-
+	removeDupls(Xs,Xs1,Eqs0,Eqs1).
+
+replaceDupl(X1,[X2|Xs],XK,[XK|Xs]) :-
+	X1 == X2,
+	!.
+replaceDupl(X,[X1|Xs],Y,[X1|Xs1]) :-
+	replaceDupl(X,Xs,Y,Xs1).
+

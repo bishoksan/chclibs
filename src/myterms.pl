@@ -19,6 +19,7 @@
 :- use_module(library(aggregates)).
 :- use_module(library(sort)).
 :- use_module(canonical).
+:- use_module(common, [occurs/2]).
 
 copyterm(X,Y) :-
 	findall(X,X=_,[Y]).
@@ -156,19 +157,13 @@ countBindings1([X|Xs],Ws,K) :-
 	K is K1+1.
 countBindings1([X|Xs],Ws,K) :-
 	var(X),
-	vmemb(X,Ws),
+	occurs(X,Ws),
 	!,
 	countBindings1(Xs,Ws,K1),
 	K is K1+1.
 countBindings1([X|Xs],Ws,K) :-
 	countBindings1(Xs,[X|Ws],K).
 	
-vmemb(X,[X1|_]) :-
-	X==X1,
-	!.
-vmemb(X,[_|Xs]) :-
-	vmemb(X,Xs).
-
 % Same as instanceIndex1 bu with ground representation
 instanceIndex(A,K) :-
 	A =.. [_|Xs],
