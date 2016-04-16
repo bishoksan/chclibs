@@ -12,7 +12,7 @@
 :- use_module(library(dynamic)).
 :- use_module(library(read)).
 :- use_module(library(lists)).
-:- use_module(chclibs(common), [writeAtomEq/4]).
+:- use_module(chclibs(common), [writeAtomEq/4, conj2List/2]).
 
 :- dynamic my_clause/3.
 
@@ -35,7 +35,7 @@ remember_clause((A :- B),K) :- !,
 	atomconstraints(A, ACs0,ACs1, Ant),
 	writeAtomEq(Ant,Anodupl,Es0,Es1),
 	%
-	tuple2list(B,BL),
+	conj2List(B,BL),
 	bodyconstraints(BL,BL0,BCs0,BCs1),
 	ACs1=Es0,
 	Es1=BCs0,
@@ -84,11 +84,6 @@ occurs(X,[Y|_]) :-
 	!.
 occurs(X,[_|Ys]) :-
 	occurs(X,Ys).
-
-tuple2list((A,As),[A|LAs]) :-
-	!,
-	tuple2list(As,LAs).
-tuple2list(A,[A]).
 
 bodyconstraints([],[],Cs,Cs).
 bodyconstraints([B|Bs],[B|Bs1],Cs0,Cs1) :-
