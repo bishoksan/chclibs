@@ -40,6 +40,7 @@ main(ArgV) :-
 	preds(Ps),
 	start_ppl,
 	initProps(Ps),
+	% TODO:{array} add option for "threshold improvement" (see email)
 	thresholds(3,Ps),
 	atomicprops,
 	%facts2props,

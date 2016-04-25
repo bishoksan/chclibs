@@ -1,5 +1,8 @@
 :- module(common, [
+	array_theory/0,
 	separate_constraints/3,
+	separate_array_constraints/3,
+	constraint0/2,
 	constraint/2,
 	list2Conj/2,
 	conj2List/2,
@@ -14,6 +17,9 @@
 	], [assertions, isomodes, doccomments]).
 
 %! \title Some common useful predicates
+
+array_theory :- fail. % TODO: add options to enable it
+% array_theory.
 
 separate_constraints([],[],[]).
 separate_constraints([B|Bs],[C|Cs],Ds) :-
@@ -33,8 +39,33 @@ constraint(X=<Y, X=<Y).
 constraint(X<Y, X<Y).
 constraint(_\==_,0=0). % TODO: document (drops constraint)
 constraint(_=\=_,0=0). % TODO: document (drops constraint)
+constraint(read(F,X,Y), read(F,X,Y)) :- array_theory. % TODO:{arrays}
+constraint(write(F,X,Y,F2), write(F,X,Y,F2)) :- array_theory. % TODO:{arrays}
 constraint(true,0=0).
 constraint(fail,1=0).
+
+% TODO: (for loader preprocessing)
+constraint0(X=Y, X=Y).
+constraint0(X=:=Y, X=Y).
+constraint0(X is Y, X = Y).
+constraint0(X>Y, X>Y).
+constraint0(X>=Y, X>=Y).
+constraint0(X=<Y, X=<Y).
+constraint0(X<Y, X<Y).
+constraint0(read(F,X,Y), read(F,X,Y)). % TODO:{arrays}
+constraint0(write(F,X,Y,F2), write(F,X,Y,F2)). % TODO:{arrays}
+
+% separate array constraints
+% TODO: not a good name
+separate_array_constraints([], [], []).
+separate_array_constraints([C|Cs], [C|As], Rs) :-
+	array_constraint(C), !,
+	separate_array_constraints(Cs, As, Rs).
+separate_array_constraints([C|Cs], As, [C|Rs]) :-
+	separate_array_constraints(Cs, As, Rs).
+
+array_constraint(read(_,_,_)) :- array_theory.
+array_constraint(write(_,_,_,_)) :- array_theory.
 
 list2Conj([A], (A)):- !.
 list2Conj([A|R], (A,R1)):- !,

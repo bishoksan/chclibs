@@ -1,12 +1,14 @@
 :- module(builtins, [sp_builtin/1, builtin/1],
 	[assertions, isomodes, doccomments]).
 
+:- use_module(chclibs(common), [array_theory/0]).
+
 %! \title Builtin table
 %
 %  \module Fake module table for partially deal with Ciao programs
 %
-% TODO: This should be configurable (set of builtins depends on
-%   imports and input language, which is very flexible in Ciao)
+% TODO: Redefine modules for specific theories (linear arithmetic,
+%   arrays, etc.) The input language is not Prolog.
 
 sp_builtin(G) :-
 	functor(G,F,N),
@@ -26,10 +28,8 @@ builtin(G) :-
 	functor(G,F,N),
 	builtin_export(_,F,N,_).
 
-builtin(read(_)).
-builtin(write(_)).
-builtin(nl).
-	
+builtin_export(arrays,read,3,0) :- array_theory. % (fake module for array theories)
+builtin_export(arrays,write,4,0) :- array_theory. % (fake module for array theories)
 builtin_export(arithmetic,is,2,0) .
 builtin_export(arithmetic,<,2,0) .
 builtin_export(arithmetic,=<,2,0) .
@@ -194,3 +194,5 @@ builtin_export(term_typing,number,1,0) .
 builtin_export(term_typing,atomic,1,0) .
 builtin_export(term_typing,ground,1,0) .
 builtin_export(term_typing,type,2,0) .
+builtin_export(read,read,1,0).
+builtin_export(write,write,1,0).

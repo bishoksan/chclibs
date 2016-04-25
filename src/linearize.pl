@@ -12,6 +12,9 @@
 %
 % TODO: Document
 
+%! linearize(Cs, Cs2): obtain linear approximation
+%    of constraints (drop any not supported literal)
+
 linearize([],[]).
 linearize([C|Cs],[C|Cs1]) :-
 	linear_constraint(C),

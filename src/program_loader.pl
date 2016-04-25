@@ -14,7 +14,7 @@
 :- use_module(library(dynamic)).
 :- use_module(library(read)).
 :- use_module(library(lists)).
-:- use_module(chclibs(common), [conj2List/2, occurs/2]).
+:- use_module(chclibs(common), [conj2List/2, occurs/2, constraint0/2]).
 
 :- dynamic my_clause/3.
 
@@ -61,7 +61,7 @@ makeClauseId(K,CK) :-
 
 bodyconstraints([],[],Cs,Cs).
 bodyconstraints([B|Bs],[B|Bs1],Cs0,Cs1) :-
-	constraint(B,_),
+	constraint0(B,_),
 	!,
 	bodyconstraints(Bs,Bs1,Cs0,Cs1).
 bodyconstraints([B|Bs],[B2|Bs1],Cs0,Cs1) :-
@@ -70,18 +70,6 @@ bodyconstraints([B|Bs],[B2|Bs1],Cs0,Cs1) :-
 	BCs1=Es0,
 	bodyconstraints(Bs,Bs1,Es1,Cs1).
 	
-constraint(X=Y, X=Y).
-constraint(X=:=Y, X=Y).
-constraint(X is Y, X = Y).
-constraint(X>Y, X>Y).
-constraint(X>=Y, X>=Y).
-constraint(X=<Y, X=<Y).
-constraint(X<Y, X<Y).
-
-conc([],L,L).
-conc([A|L1],L2,[A|L3]) :-
-	conc(L1,L2,L3).
-
 % ---------------------------------------------------------------------------
 % TODO: Document
 
