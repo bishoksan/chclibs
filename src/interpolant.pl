@@ -98,8 +98,7 @@ computeInterpolant(_,SCs,CCs,[1=0]) :-
 	%write(Cs), nl,
 	%write('the constraints for interpolation are satisfiable '),nl,
 	!.
-
-
+%
 computeInterpolant(Xs,SCs,CCs,[I]) :-
 	makePolyhedron(SCs, P1),
 	getConstraint(P1, A),
@@ -153,7 +152,7 @@ makeInterpolant(VsMatrix, Phi,X,I,Delta,Lambda,Mu,A,B,_,_,C) :-
 	yices_vars(VsMatrix, real, VReals),
 	yices_model_keepsubst(Psi,VReals,Model), % TODO: or yices_model/3?
 	!,
-	write('Case 1'),nl,
+%	write('interpolant: Case 1'),nl,
 	getValuesI(Model, [Delta|I], [ValueDelta|ValuesI]),
 	enumerateTerm([ValuesI]*X,[[Ts]]),
 	C3 =.. ['=<',Ts,ValueDelta],
@@ -189,7 +188,7 @@ makeInterpolant2_3(VsMatrix, Phi,X,I,Delta,LambdaLt,_,C) :-
 	append(Phi,[Phi2Disj],Psi),
 	yices_vars(VsMatrix, real, VReals),
 	yices_model_keepsubst(Psi,VReals,Model), % TODO: or yices_model/3?
-	write('Case 2'),nl,
+%	write('interpolant: Case 2'),nl,
 	!,
 	getValuesI(Model, [Delta|I], [ValueDelta|ValuesI]),
 	enumerateTerm([ValuesI]*X,[[Ts]]),
@@ -205,7 +204,7 @@ makeInterpolant2_3(VsMatrix, Phi,X,I,Delta,_,MuLt,C) :-
 	append(Phi,[Phi2Disj],Psi),
 	yices_vars(VsMatrix, real, VReals),
 	yices_model_keepsubst(Psi,VReals,Model), % TODO: or yices_model/3?
-	write('Case 3'),nl,
+%	write('interpolant: Case 3'),nl,
 	!,
 	getValuesI(Model, [Delta|I], [ValueDelta|ValuesI]),
 	enumerateTerm([ValuesI]*X,[[Ts]]),

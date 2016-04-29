@@ -25,6 +25,7 @@
 
 :- include(chclibs(get_options)).
 
+:- data flag/1. % TODO: use
 :- dynamic(fact/2).
 :- dynamic(prop/2).
 :- dynamic(abstract/0).

@@ -1,4 +1,4 @@
-:- module(wto, [main/1,wto/6,wto_file/3], [assertions, isomodes, doccomments]).
+:- module(wto, [main/1,wto/6,wto_file/4], [assertions, isomodes, doccomments]).
 
 %! \title Finding widening points
 %
@@ -20,11 +20,16 @@
 :- use_module(readprog).
 :- use_module(common, [memb1/2]).
 
+:- include(chclibs(messages)).
+
+:- data flag/1.
+
 main([F]) :-
+	set_options(['-v']),
 	readprog(F,Cls),
 	sortClauses(Cls,Ps,Prog),
 	%
-	write('Depth first'),nl,
+	verbose_message(['Depth first']),
 	wto(dfs,feedback,Ps,Prog,_Wtod1,WPsDfs1),
 	makeset(WPsDfs1,WPsd1),
 	open('wideningpoints_dfs_fb.pl',write,Sd1),
@@ -46,7 +51,7 @@ main([F]) :-
 %	writeTerms(WPsd4,Sd4),
 %        close(Sd4),
 	%
-	write('Breadth first'),nl,
+	verbose_message(['Breadth first']),
 %	wto(bfs,feedback,Ps,Prog,_Wtob1,WPsBfs1),
 %	makeset(WPsBfs1,WPsb1),
 %	open('wideningpoints_bfs_fb.pl',write,Sb1),
@@ -69,7 +74,7 @@ main([F]) :-
         close(Sb4).
 
 
-  %  write('Bredth first'),nl,
+  %  verbose_message(['Bredth first']),
   %      wto(bfs,Ps,Prog,_Wtob,WPsBfs),
   %      makeset(WPsBfs,WPsb), 
 %	open('wideningpoints_bfs.pl',write,Sb),
@@ -86,9 +91,15 @@ chooseMin(W1,W2,W2) :-
 	X >= Y,!.
 chooseMin(W1,_,W1).
 
+set_options(Options) :-
+	( member(verbose,Options) -> assertz_fact(flag(verbose))
+	; retractall_fact(flag(verbose))
+	).
+
 % wto(Prog,Cs):  Ps is a list of predicates (output of readprog)
 
-wto_file(F,_,WP) :-
+wto_file(F,_,WP,Options) :-
+	set_options(Options),
         readprog(F,Cls),
         sortClauses(Cls,Ps,Prog),
         wto(bfs,feedback,Ps,Prog,_Wto,WPs1),
@@ -106,7 +117,7 @@ wto(TM,alme,Ps,Prog,_Wto,WPs) :-
 	dfsSweep(TM,alme,Nodes,G,[],root,_,[],_Stack,[],Ls),
 %WPs should now containt a list of lists
 %Each list is a "loop" - cut all loops picking lowest number of widen.p. 
-    cutloops(Ps,Ls,WPs).
+	cutloops(Ps,Ls,WPs).
 %    write(WPs),nl.
 %	parenthesise(Stack,G,[],Wto).
 %
@@ -161,7 +172,8 @@ findHighestDegreeNode([P|Ps],Ls,(Pc,Dgr),Phdg,Degree) :-
 findHighestDegreeNode([_|Ps],Ls,(Pc,Dgr),Phdg,Degree) :-
 	findHighestDegreeNode(Ps,Ls,(Pc,Dgr),Phdg,Degree).
 
-firstdfsSweep(_,_,[], _, _, MarkList, MarkList, Stack, Stack,Ws,Ws) :- write('End of sweep'),nl.
+firstdfsSweep(_,_,[], _, _, MarkList, MarkList, Stack, Stack,Ws,Ws) :-
+	verbose_message(['End of sweep']).
 firstdfsSweep(TM,WM,[N|Ns], Graph, As, MarkListIn, MarkListOut, StackIn, StackOut,Ws0,Ws2) :-
         search_tree(MarkListIn,N,black),   % N already visited
         !,
@@ -372,4 +384,7 @@ backlinked(N,G,S) :-
 
 %writeWto(Wto,S) :-
 %	write(S,Wto),nl(S).
+
+
+
 

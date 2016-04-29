@@ -57,6 +57,8 @@
 % The answers to predicates that only appear as the last call in clause
 % bodies are not needed.
 
+:- data flag/1. % TODO: use
+
 recognised_option('-index',index,[]).
 recognised_option('-ans',ans,[]).
 recognised_option('-builtin',builtin,[]).

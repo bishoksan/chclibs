@@ -25,6 +25,7 @@
 :- use_module(scc).
 
 :- include(chclibs(get_options)).
+:- include(chclibs(messages)).
 
 :- dynamic(flag/1).
 :- dynamic(currentflag/1).
@@ -73,7 +74,8 @@ recognised_option('-narrowout',narrowO(R),[R]).
 recognised_option('-narrowiterations',narrowiterationsO(R),[R]).
 recognised_option('-delaywidening',delaywiden(R),[R]).
 recognised_option('-wfunc',widenF(F),[F]).
-recognised_option('-v',verbose,[]).
+recognised_option('-v',verbose,[]). % some verbose
+recognised_option('-debug-print',debug_print,[]). % detailed comments
 recognised_option('-querymodel',querymodel(Q),[Q]).
 recognised_option('-nowpscalc',nowpscalc,[]).
 recognised_option('-withwut',withwut,[]).
@@ -89,20 +91,20 @@ main(['-prg',FileIn, '-o', FileOut]) :-
 	!,
 	go2(FileIn,FileOut).
 main(ArgV) :-
-	write('Starting Convex Polyhedra analysis'),nl,
+	verbose_message(['Starting Convex Polyhedra analysis']),
 	get_options(ArgV,Options,_),
 	cleanWorkspace,
 	set_options(Options,File,FactFile),
 	initialise,
-	start_time,
+	( flag(verbose) -> start_time ; true ),
 	load_file(File),
 	dependency_graph(Es,Vs),
 	scc_graph(Es,Vs,G),
 	start_ppl,
 	iterate(G),
 	narrow,
-	nl, write('Convex Polyhedra Analysis Succeeded'),nl,
-	end_time(user_output),
+	verbose_message(['Convex Polyhedra Analysis Succeeded']),
+	( flag(verbose) -> end_time(user_output) ; true ),
 	!,
 	factFile(FactFile),
 	generateCEx,
@@ -128,12 +130,12 @@ generateCEx:-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 iterate([(non_recursive,P)|SCCs]) :-
-	verbose_write(['Non-recursive component ',P]),
+	debug_message(['Non-recursive component ',P]),
 	(flag(first) -> true; assertz(flag(first))),
 	non_recursive_scc(P),
 	iterate(SCCs).
 iterate([(recursive,Ps)|SCCs]) :-
-	verbose_write(['Recursive component ',Ps]),
+	debug_message(['Recursive component ',Ps]),
 	(flag(first) -> true; assertz(flag(first))),
 	recursive_scc(Ps),
 	iterate(SCCs).
@@ -157,8 +159,10 @@ recursive_scc(Ps) :-
 	retractall(flag(first)),
 	fail.
 recursive_scc(Ps) :-
-	(flag(verbose)->factFile(user_output);
-		true),
+	( flag(debug_print) ->
+	    factFile(user_output)
+	; true
+	),
 	widen,
 	newoldfacts,
 	not_converged, 
@@ -342,7 +346,7 @@ newoldfacts.
 widen :-
 	prio_widen(PrioWiden),
 	possibleWidenPs(PrioWiden,PosPW),
-	verbose_write(['Possible Wideningpoints ',PosPW]),
+	debug_message(['Possible Wideningpoints ',PosPW]),
 	!,
 	widenlist(PosPW).
 
@@ -373,7 +377,7 @@ widenlist([Wc|Ws]) :-
 	widening_point(WcF/WcN,_,0),
 	retract(newfact(Wc,NewH)),
 	retract(oldfact(Wc,OldH)),
-	verbose_write(['Widening at ',Wc]),
+	debug_message(['Widening at ',Wc]),
 	wutwiden(Wc,NewH,OldH,H2),
 	assertz(oldfact(Wc,H2)),
 	widenlist(Ws).
@@ -394,7 +398,7 @@ widenWRToptions(F,H0,H1) :-
 	widenf(withwut),
 	!,
 	getThresholds(F,Cns),
-	verbose_write(['Widen upto constraints: ',Cns]),
+	debug_message(['Widen upto constraints: ',Cns]),
 	widenUpto(H0,H1,Cns).
 
 widenPolyhedra(H0,H1) :-
@@ -456,7 +460,7 @@ assert_widenpoints(W,WP) :-
 collect_wps :-
 	findall((Dgs,F,N),widening_point(F/N,Dgs,_Delays),Wps),
 	reverse(Wps,RWps),
-	verbose_write(['Ordered by degree ',RWps]),
+	debug_message(['Ordered by degree ',RWps]),
 	assertz(prio_widen(RWps)).
 	
 assertWP(widening_point(X,Y)) :-
@@ -497,6 +501,9 @@ set_options(Options,File,FactFile) :-
 	( member(verbose,Options) -> assertz(flag(verbose))
 	; retractall(flag(verbose))
 	),
+	( member(debug_print,Options) -> assertz(flag(debug_print))
+	; retractall(flag(debug_print))
+	),
 	( member(singlepoint,Options) -> assertz(widenAt(singlepoint))
 	; assertz(widenAt(allpoints))
 	),
@@ -515,7 +522,7 @@ set_options(Options,File,FactFile) :-
 	( member(withwut,Options) ->
 	  assertz(widenf(withwut)),
 	  readWutfacts,
-	  ( flag(verbose) ->
+	  ( flag(debug_print) ->
 	      write('Widening points: '),nl,
 	      showallwideningpoints
 	  ; true
@@ -544,7 +551,8 @@ set_options(Options,File,FactFile) :-
 	assertz(narrowiterations(NitN)),
 	detectwps(WPSMethod),
 	( member(nowpscalc,Options) -> true
-	; wto_file(File,WPSMethod,WPoints)
+	; verbose_opts(WOpts),
+	  wto_file(File,WPSMethod,WPoints,WOpts)
 	),
 	load_widenpoints(WPoints),
 	assertz(outputfile(WOutput)).
@@ -607,17 +615,6 @@ factFile(File) :-
 	nl(Sout),
 	fail;
 	close(Sout)).
-
-verbose_write(Xs) :-
-	( flag(verbose) -> verbose_write_list(Xs)
-	; true
-	).
-		
-verbose_write_list([]) :-
-	nl.
-verbose_write_list([X|Xs]) :-
-	write(X),
-	verbose_write_list(Xs).
 
 % Version generation and FTA construction
 
@@ -806,4 +803,4 @@ for(I,Low,High) :-
 	Low < High,
 	Low1 is Low+1,
 	for(I,Low1,High).
-	
+

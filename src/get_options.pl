@@ -12,3 +12,14 @@ get_options([X|T],Options,Args) :-
 	),
 	get_options(RT,OT,AT).
 
+% ---------------------------------------------------------------------------
+
+% Obtain verbosity options from current values in flags/1
+verbose_opts(Opts) :-
+	( flag(verbose) -> Opts = ['-v'|Opts1]
+	; Opts = Opts1
+	),
+	( flag(debug_print) -> Opts1 = ['-debug-print'|Opts2]
+	; Opts1 = Opts2
+	),
+	Opts2 = [].
