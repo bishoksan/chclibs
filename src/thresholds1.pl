@@ -78,8 +78,6 @@ setOptions(ArgV,File,OutS) :-
 	(member(abstract,Options), assert(abstract); 
 			true).
 
-
-
 cleanup :-
 	retractall(fact(_,_)),
 	retractall(prop(_,_)),
@@ -110,20 +108,22 @@ atomicprops :-
 	fact(A,H),
 	getConstraint(H,Cs),
 	A =.. [_|Xs],
-	projectVars(Xs,[],H,Cs1),
+	functor(A,_,N),
+	projectVars(Xs,[],N,H,Cs1),
 	append(Cs,Cs1,Cs2),
 	assert_each_atom_prop(Cs2,A),
 	fail.
 atomicprops.
 
-projectVars([],_,_,[]).
-projectVars([X|Xs],Ys,H,Cs) :-
+projectVars([],_,_,_,[]).
+projectVars([X|Xs],Ys,N,H,Cs) :-
 	append(Xs,Ys,Zs),
 	copyPolyhedron(H,H1),
 	project(H1,Zs,H2),
-	mapCoords(H2,['$VAR'(0)-X]),
+	ppl_Polyhedron_add_space_dimensions_and_embed(H2,N),
+	mapCoords(H2,['$VAR'(0)-X,X-'$VAR'(0)]),
 	getConstraint(H2,Cs2),
-	projectVars(Xs,[X|Ys],H,Cs1),
+	projectVars(Xs,[X|Ys],N,H,Cs1),
 	append(Cs2,Cs1,Cs).
 	
 	
@@ -199,7 +199,6 @@ solve(Bs,Xs,Cs,Hp) :-
 	setdiff(Ys,Xs,Zs),
 	project(H1,Zs,Hp).
 	
-	   
 record(Head,H):-
 	cond_assert(Head,H).
 	
@@ -214,7 +213,7 @@ alreadyAsserted(Head,H) :-
 
 prove(Bs,Ds) :-
 	prove_any(Bs,Ds).
-
+	
 prove_any([],[]).
 prove_any([true],[]).
 prove_any([B|Bs],Ds) :-
