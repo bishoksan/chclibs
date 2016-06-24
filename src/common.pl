@@ -1,5 +1,5 @@
 :- module(common, [
-	array_theory/0,
+	prg_theory/1, % (data)
 	separate_constraints/3,
 	separate_array_constraints/3,
 	constraint0/2,
@@ -18,8 +18,9 @@
 
 %! \title Some common useful predicates
 
-array_theory :- fail. % TODO: add options to enable it
-% array_theory.
+:- data prg_theory/1.
+prg_theory(_) :- fail.
+prg_theory(array).
 
 separate_constraints([],[],[]).
 separate_constraints([B|Bs],[C|Cs],Ds) :-
@@ -39,8 +40,8 @@ constraint(X=<Y, X=<Y).
 constraint(X<Y, X<Y).
 constraint(_\==_,0=0). % TODO: document (drops constraint)
 constraint(_=\=_,0=0). % TODO: document (drops constraint)
-constraint(read(F,X,Y), read(F,X,Y)) :- array_theory. % TODO:{arrays}
-constraint(write(F,X,Y,F2), write(F,X,Y,F2)) :- array_theory. % TODO:{arrays}
+constraint(read(F,X,Y), read(F,X,Y)) :- prg_theory(array). % TODO:{arrays}
+constraint(write(F,X,Y,F2), write(F,X,Y,F2)) :- prg_theory(array). % TODO:{arrays}
 constraint(true,0=0).
 constraint(fail,1=0).
 
@@ -64,8 +65,8 @@ separate_array_constraints([C|Cs], [C|As], Rs) :-
 separate_array_constraints([C|Cs], As, [C|Rs]) :-
 	separate_array_constraints(Cs, As, Rs).
 
-array_constraint(read(_,_,_)) :- array_theory.
-array_constraint(write(_,_,_,_)) :- array_theory.
+array_constraint(read(_,_,_)) :- prg_theory(array).
+array_constraint(write(_,_,_,_)) :- prg_theory(array).
 
 list2Conj([A], (A)):- !.
 list2Conj([A|R], (A,R1)):- !,

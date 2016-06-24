@@ -1,7 +1,7 @@
 :- module(builtins, [sp_builtin/1, builtin/1],
 	[assertions, isomodes, doccomments]).
 
-:- use_module(chclibs(common), [array_theory/0]).
+:- use_module(chclibs(common), [prg_theory/1]).
 
 %! \title Builtin table
 %
@@ -28,8 +28,8 @@ builtin(G) :-
 	functor(G,F,N),
 	builtin_export(_,F,N,_).
 
-builtin_export(arrays,read,3,0) :- array_theory. % (fake module for array theories)
-builtin_export(arrays,write,4,0) :- array_theory. % (fake module for array theories)
+builtin_export(arrays,read,3,0) :- prg_theory(array). % (fake module for array theories)
+builtin_export(arrays,write,4,0) :- prg_theory(array). % (fake module for array theories)
 builtin_export(arithmetic,is,2,0) .
 builtin_export(arithmetic,<,2,0) .
 builtin_export(arithmetic,=<,2,0) .
