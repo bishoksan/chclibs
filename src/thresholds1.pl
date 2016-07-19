@@ -50,7 +50,8 @@ main(ArgV) :-
 	showallprops(OutS),
 	nl(OutS),
 	close(OutS),
-	ppl_finalize.
+	ppl_finalize,
+	!. % TODO: this cut should not be here
 	
 thresholds(N,Ps) :-
 	N > 0,
@@ -72,7 +73,7 @@ thresholds(0,_).
 setOptions(ArgV,File,OutS) :-
 	get_options(ArgV,Options,_),
 	(member(programO(File),Options); 
-			write(user_output,'No input file given.'),nl(user_output)),
+			write(user_output,'thresholds1: No input file given.'),nl(user_output)),
 	(member(outputFile(OutFile),Options), open(OutFile,write,OutS); 
 			OutS=user_output),
 	(member(abstract,Options), assert(abstract); 

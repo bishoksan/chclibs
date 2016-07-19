@@ -38,6 +38,7 @@
 :- use_module(common, [list2Disj/2]).
 
 % (test)
+%:- export(testall/0).
 testall :-
 	numbervars([X,Y,Z],0,_),
 	go([X,Y,Z],[Z<0, X =< Z, Y =< X],[Y=<0, X+Y>=0]),
@@ -153,7 +154,7 @@ makeInterpolant(VsMatrix, Phi,X,I,Delta,Lambda,Mu,A,B,_,_,C) :-
 	yices_model_keepsubst(Psi,VReals,Model), % TODO: or yices_model/3?
 	!,
 %	write('interpolant: Case 1'),nl,
-	getValuesI(Model, [Delta|I], [ValueDelta|ValuesI]),
+	getValues(Model, [Delta|I], [ValueDelta|ValuesI]),
 	enumerateTerm([ValuesI]*X,[[Ts]]),
 	C3 =.. ['=<',Ts,ValueDelta],
 	simplifyInterpolant(C3,C).
@@ -167,7 +168,7 @@ makeInterpolant(VsMatrix, Phi,X,I,Delta,Lambda,Mu,A,B,_,_,C) :-
 %% 	yices_model_keepsubst(Psi,VReals,Model), % TODO: or yices_model/3?
 %% 	!,
 %% 	write('Case 2.1'),nl,
-%% 	getValuesI(Model, [Delta|I], [ValueDelta|ValuesI]),
+%% 	getValues(Model, [Delta|I], [ValueDelta|ValuesI]),
 %% 	enumerateTerm([ValuesI]*X,[[Ts]]),
 %% 	C3 =.. ['=<',Ts,ValueDelta],
 %% 	simplifyInterpolant(C3,C).
@@ -188,9 +189,9 @@ makeInterpolant2_3(VsMatrix, Phi,X,I,Delta,LambdaLt,_,C) :-
 	append(Phi,[Phi2Disj],Psi),
 	yices_vars(VsMatrix, real, VReals),
 	yices_model_keepsubst(Psi,VReals,Model), % TODO: or yices_model/3?
-%	write('interpolant: Case 2'),nl,
+	%write('interpolant: Case 2'),nl,
 	!,
-	getValuesI(Model, [Delta|I], [ValueDelta|ValuesI]),
+	getValues(Model, [Delta|I], [ValueDelta|ValuesI]),
 	enumerateTerm([ValuesI]*X,[[Ts]]),
 	C3 =.. ['<',Ts,ValueDelta],
 	simplifyInterpolant(C3,C).
@@ -204,23 +205,33 @@ makeInterpolant2_3(VsMatrix, Phi,X,I,Delta,_,MuLt,C) :-
 	append(Phi,[Phi2Disj],Psi),
 	yices_vars(VsMatrix, real, VReals),
 	yices_model_keepsubst(Psi,VReals,Model), % TODO: or yices_model/3?
-%	write('interpolant: Case 3'),nl,
+	%write('interpolant: Case 3'),nl,
 	!,
-	getValuesI(Model, [Delta|I], [ValueDelta|ValuesI]),
+	getValues(Model, [Delta|I], [ValueDelta|ValuesI]),
 	enumerateTerm([ValuesI]*X,[[Ts]]),
 	C3 =.. ['=<',Ts,ValueDelta],
 	simplifyInterpolant(C3,C).
 
-getIntValueTerm(Model, Term, IntValue):-
-	get_value_as_term(Model, Term, Value),
-	yices_term_to_string(Value, 20,1, 0, Value2), %converting yices term to string
+getValueTerm(Model, Term, Value):-
+	get_value_as_term(Model, Term, Value1),
+	yices_term_to_string(Value1, 20,1, 0, ValueStr), %converting yices term to string
 	% TODO: Make sure that the grammar is compatible with number_codes/2
-	number_codes(IntValue, Value2).
+	rational_codes(Value, ValueStr).
 
-getValuesI(_, [], []).
-getValuesI(Model, [L|Lambdas], [LV|LambdaValues]):-
-	getIntValueTerm(Model, L, LV),
-	getValuesI(Model, Lambdas, LambdaValues).
+rational_codes(Value, Str) :-
+	number_codes(Value0, Str),
+	!,
+	Value = Value0.
+rational_codes(Value, Str) :-
+	append(NumStr, "/"||DenStr, Str),
+	number_codes(Num, NumStr),
+	number_codes(Den, DenStr),
+	Value = Num/Den.
+
+getValues(_, [], []).
+getValues(Model, [L|Lambdas], [LV|LambdaValues]):-
+	getValueTerm(Model, L, LV),
+	getValues(Model, Lambdas, LambdaValues).
 
 varList(0,[]).
 varList(N,[_|Xs]) :-
