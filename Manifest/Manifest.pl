@@ -1,12 +1,11 @@
-% Manifest file for CHCLibs
-bundle_name(chclibs).
-bundle_packname('CHCLibs').
-bundle_requires([
+:- bundle(chclibs).
+version('1.0').
+depends([
     core,
     % ciao_ppl, % TODO: still in Ciao
     ciao_yices
 ]).
-bundle_alias_paths([
+alias_paths([
     chclibs = 'src'
 ]).
 
