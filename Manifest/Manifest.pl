@@ -3,10 +3,12 @@ version('1.0').
 depends([
     core,
     % ciao_ppl, % TODO: still in Ciao
-    ciao_yices
+    'github.com/jfmc/ciao_yices'
 ]).
 alias_paths([
     chclibs = 'src'
 ]).
+lib('src').
+manual('chclibs', [main='doc/SETTINGS.pl']).
 
 
