@@ -283,7 +283,7 @@ narrow_record(F,H) :-
 	narrow_cond_assert(F,H).
 
 cond_assert(F,H):-
-	\+ (fact(F,H1), entails(H1,H)),
+	\+ (fact(F,H1), contains(H1,H)),
 	getExistingConstraints(F,H0),
 	convhull(H0,H,H2),
 	assertz(newfact(F,H2)),
@@ -291,7 +291,7 @@ cond_assert(F,H):-
 	%check_raise_flag(F,H0,H2).
 
 narrow_cond_assert(F,H):-
-	\+ (newfact(F,H1), entails(H1,H)),
+	\+ (newfact(F,H1), contains(H1,H)),
 	getExistingNewConstraints(F,H0),
 	convhull(H0,H,H2),
 	retractall(newfact(F,_)),

@@ -10,7 +10,7 @@
 	project/3,
 	equivalent/2,
 	disjointFrom/2,
-	entails/2,
+	contains/2,
 	consistent/2,
 	convhull/3,
 	widenPolyhedraH79/2,
@@ -60,10 +60,10 @@ equivalent(H0,H1) :-
 disjointFrom(H0,H1) :-
 	ppl_Polyhedron_is_disjoint_from_Polyhedron(H0,H1).
 
-entails(H0,_) :-
+contains(H0,_) :-
 	ppl_Polyhedron_is_universe(H0),
 	!.
-entails(H0,H1) :-
+contains(H0,H1) :-
 	ppl_Polyhedron_contains_Polyhedron(H0,H1).
 	
 consistent(H0,H1) :-
