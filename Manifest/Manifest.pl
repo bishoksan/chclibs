@@ -2,7 +2,7 @@
 version('1.0').
 depends([
     core,
-    % ciao_ppl, % TODO: still in Ciao
+    'github.com/ciao-lang/ciao_ppl',
     'github.com/jfmc/ciao_yices'
 ]).
 alias_paths([
