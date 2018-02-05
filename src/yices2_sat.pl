@@ -1,4 +1,5 @@
 :- module(yices2_sat, [
+	expr2yices/2,
 	yices_sat/2,
 	yices_unsat/2,
 	yices_model/3,
