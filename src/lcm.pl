@@ -7,6 +7,7 @@
 % 	transf(-(1/9)*C=< -(1), R),
 % 	write(R).
 
+lcmList([],1).
 lcmList([X],X).
 lcmList([X,Y|Xs],N) :-
 	lcmList([Y|Xs],M),
