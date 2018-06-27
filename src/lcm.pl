@@ -1,4 +1,6 @@
-:- module(lcm, [transf/2], [assertions, isomodes, doccomments]).
+%:- module(lcm, [transf/2], [assertions, isomodes, doccomments]).
+:- module(lcm, _, [assertions, isomodes, doccomments]).
+
 
 :- use_module(library(lists)).
 
@@ -37,11 +39,16 @@ coeffs(C,[C]):-
 	rationalNum(C),
 	!.
 coeffs(Expr,Cs) :-
-	Expr =.. [Op,T1,T2],
+	Expr =.. [Op|Ts],
 	member(Op, ['+','-','>','<','>=','=<','=','is']),
-	coeffs(T1,C1),
-	coeffs(T2,C2),
-	append(C1,C2,Cs).
+	coeffList(Ts,Cs).
+	
+coeffList([],[]).
+coeffList([X|Xs],Cs) :-
+	coeffs(X,C1),
+	coeffList(Xs,Cs1),
+	append(C1,Cs1,Cs).
+	
 	
 rationalNum(C) :-
 	number(C),
@@ -77,11 +84,15 @@ normalizeCoeffs(C,LCM,C1):-
 	ratVal(C,N,D),
 	C1 is (N*LCM)//D.
 normalizeCoeffs(Expr1,LCM,Expr2) :-
-	Expr1 =.. [Op,T1,T2],
+	Expr1 =.. [Op|Ts],
 	member(Op, ['+','-','>','<','>=','=<','=','is']),
-	normalizeCoeffs(T1,LCM,T11),
-	normalizeCoeffs(T2,LCM,T21),
-	Expr2 =.. [Op,T11,T21].
+	normalizeCoeffList(Ts,LCM,Ts1),
+	Expr2 =.. [Op|Ts1].
+	
+normalizeCoeffList([],_,[]).
+normalizeCoeffList([T|Ts],LCM,[T1|Ts1]) :-
+	normalizeCoeffs(T,LCM,T1),
+	normalizeCoeffList(Ts,LCM,Ts1).
 
 denominators([X|Xs],[D|Ds]) :-
 	ratVal(X,_,D),
