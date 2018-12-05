@@ -1,5 +1,5 @@
 :- module(qa, [main/1, 
-	qaInvoke/4,
+	qaInvoke/5,
 	answerClauses/3,
 	queryClauses/3,
 	queryAnsClauses/3,
@@ -69,10 +69,10 @@ recognised_option('-right',right,[]).
 
 main(ArgV) :-
 	get_options(ArgV,Options,[F|_]),
-	readprog(F,[_|Cs]),
+	readprog(F,[predicates(Ps)|Cs]),
 	getQuery(Options,Q1),
 	outfileStream(Options,S),
-	qaInvoke(Cs,Q1,Options,Qs),
+	qaInvoke(Cs,Ps,Q1,Options,Qs),
 	writeClauses(Qs,S),
 	close(S).
 	
@@ -88,7 +88,7 @@ getQuery(Options,[Q1]) :-
 	convertQueryString(Q,Q1).
 getQuery(_,[]). 	% no query supplied
 
-qaInvoke(Cls,Q1,Options,Qs0) :-
+qaInvoke(Cls,Ps,Q1,Options,Qs0) :-
 	member(ans,Options) ->
 	   (member(index,Options) ->
 	      (member(builtin,Options) ->
@@ -99,11 +99,11 @@ qaInvoke(Cls,Q1,Options,Qs0) :-
 	        qaInvoke100(Cls,Q1,Qs0))); % ans, noindex, nobuiltin
 	   (member(index,Options) ->
 	      (member(builtin,Options) ->
-	        qaInvoke011(Cls,Q1,Qs0);   % noans, index, builtin
-	        qaInvoke010(Cls,Q1,Qs0));  % noans, index, nobuiltin
+	        qaInvoke011(Cls,Ps,Q1,Qs0);   % noans, index, builtin
+	        qaInvoke010(Cls,Ps,Q1,Qs0));  % noans, index, nobuiltin
 	      (member(builtin,Options) ->
-	        qaInvoke001(Cls,Q1,Qs0);   % noans, noindex, builtin
-	        qaInvoke000(Cls,Q1,Qs0))). % noans, noindex, nobuiltin
+	        qaInvoke001(Cls,Ps,Q1,Qs0);   % noans, noindex, builtin
+	        qaInvoke000(Cls,Ps,Q1,Qs0))). % noans, noindex, nobuiltin
 	        
 	        
 qaInvoke111(Cls,Q,Qs0) :-
@@ -122,22 +122,26 @@ qaInvoke100(Cls,Q,Qs0) :-
 	answerClauses(Cls,Qs0,Qs1),
 	makeQueryClauses(Cls,Qs1,Qs2,1,[noindex,ans,nobuiltin]),
 	addQueryClauses(Q,Qs2,[],[noindex]).
-qaInvoke011(Cls,Q,Qs0) :-
-	programClauses(Cls,Qs2),
-	makeQueryClauses(Cls,Qs0,Qs1,1,[index,noans,builtin]),
-	addQueryClauses(Q,Qs1,Qs2,[index]).
-qaInvoke010(Cls,Q,Qs0) :-
-	programClauses(Cls,Qs2),
-	makeQueryClauses(Cls,Qs0,Qs1,1,[index,noans,nobuiltin]),
-	addQueryClauses(Q,Qs1,Qs2,[index]).
-qaInvoke001(Cls,Q,Qs0) :-
-	programClauses(Cls,Qs2),
-	makeQueryClauses(Cls,Qs0,Qs1,1,[noindex,noans,builtin]),
-	addQueryClauses(Q,Qs1,Qs2,[noindex]).
-qaInvoke000(Cls,Q,Qs0) :-
-	programClauses(Cls,Qs2),
-	makeQueryClauses(Cls,Qs0,Qs1,1,[noindex,noans,nobuiltin]),
-	addQueryClauses(Q,Qs1,Qs2,[noindex]).
+qaInvoke011(Cls,Ps,Q,Qs0) :-
+	programClauses(Cls,Qs3),
+	linkAnswerClauses(Ps,Qs0,Qs1),
+	makeQueryClauses(Cls,Qs1,Qs2,1,[index,noans,builtin]),
+	addQueryClauses(Q,Qs2,Qs3,[index]).
+qaInvoke010(Cls,Ps,Q,Qs0) :-
+	programClauses(Cls,Qs3),
+	linkAnswerClauses(Ps,Qs0,Qs1),
+	makeQueryClauses(Cls,Qs1,Qs2,1,[index,noans,nobuiltin]),
+	addQueryClauses(Q,Qs2,Qs3,[index]).
+qaInvoke001(Cls,Ps,Q,Qs0) :-
+	programClauses(Cls,Qs3),
+	linkAnswerClauses(Ps,Qs0,Qs1),
+	makeQueryClauses(Cls,Qs1,Qs2,1,[noindex,noans,builtin]),
+	addQueryClauses(Q,Qs2,Qs3,[noindex]).
+qaInvoke000(Cls,Ps,Q,Qs0) :-
+	programClauses(Cls,Qs3),
+	linkAnswerClauses(Ps,Qs0,Qs1),
+	makeQueryClauses(Cls,Qs1,Qs2,1,[noindex,noans,nobuiltin]),
+	addQueryClauses(Q,Qs2,Qs3,[noindex]).
 	
 qa(F1,Q,F2) :-
 	readprog(F1,[_|Cs]), 
@@ -178,6 +182,22 @@ answerClauses([C|Cs],[clause((A1 :- QB),Vs)|Out0],Out1) :-
 	qbody(QA,B1,QB),
 	prettyvars(clause((A1 :- QB),Vs)),
 	answerClauses(Cs,Out0,Out1).
+	
+linkAnswerClauses(Ps,Qs0,Qs1) :-
+	makeAnswerLinkClauses(Ps,Qs0,Qs1).
+	
+makeAnswerLinkClauses([P/N|Ps],Qs0,Qs1) :-
+	functor(A,P,N),
+	builtin(A),
+	!,
+	makeAnswerLinkClauses(Ps,Qs0,Qs1).
+makeAnswerLinkClauses([P/N|Ps],[clause((AA :- QA,A),_)|Qs0],Qs1) :-
+	functor(A,P,N),
+	canonical(A),
+	flat_name(query(A),QA),
+	flat_name(ans(A),AA),
+	makeAnswerLinkClauses(Ps,Qs0,Qs1).
+makeAnswerLinkClauses([],Qs,Qs).
 	
 addInitQueries(Q,Cls0,Cls1) :-
 	addQueryClauses(Q,Cls0,Cls1,[noindex]).

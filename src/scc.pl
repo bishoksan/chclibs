@@ -1,4 +1,4 @@
-:- module(scc, [fscc/2, scc/3, 
+:- module(scc, [main/1,fscc/2, scc/3, 
 		make_callgraph/3, 
 		scc_graph/3, 
 		scc_sharir/2,

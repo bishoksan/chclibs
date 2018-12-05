@@ -112,8 +112,11 @@ dummyCList([],[]).
 dummyCList([C|Cs],[C=C|Cs1]) :-
 	dummyCList(Cs,Cs1).
 
-conj2List((A, B), [A|R]) :- !,
-	conj2List(B,R).
+conj2List(B, [A|R]) :- 
+	nonvar(B),
+	B = (A,B1),
+	!,
+	conj2List(B1,R).
 conj2List(A, [A]).
 
 

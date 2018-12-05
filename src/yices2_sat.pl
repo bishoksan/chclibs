@@ -5,7 +5,9 @@
 	yices_model_keepsubst/3,
 	true_in_model/2,
 	get_value_as_term/3,
-	yices_vars/3
+	yices_vars/3,
+	expr2yices/2,
+	yices_declare_var/2
    ], [assertions, isomodes, doccomments, dcg]).
 
 %! \title Higher level interface to Yices SMT solver

@@ -52,6 +52,7 @@
 :- dynamic(atomicproposition/1).
 :- dynamic cEx/1.
 :- dynamic threshold/1.
+:- dynamic traceTerm/2.
 
 
 go(File) :-
@@ -115,7 +116,7 @@ main(ArgV) :-
 generateCEx:-
 	cEx('$NOCEX'),
 	!.
-generateCEx:-
+generateCEx :-
 	cEx(CexFile),
 	buildversions2,
 	versioniterate,
@@ -177,8 +178,8 @@ not_converged :-
 convexhull_operation(Ps) :-
 	member(P/N,Ps),
 	functor(H,P,N),
-	my_clause(H,B,_),
-	operator(H,B),
+	my_clause(H,B,Id),
+	operator(H,B,Id),
 	fail.
 convexhull_operation(_).
 
@@ -205,9 +206,9 @@ narrowIteration.
 
 %%%%%%%%%%%%%%%%
 
-operator(Head,B):-
+operator(Head,B,Id):-
 	(changed(B);flag(first)),
-	prove(B,Cs),
+	prove(B,Cs,_),
 	varset((Head,Cs),Ys),
 	Head =.. [_|Xs],
 	linearize(Cs,CsLinNOP),
@@ -219,38 +220,27 @@ operator(Head,B):-
 	satisfiable(CsLin,H1),
 	setdiff(Ys,Xs,Zs),
 	project(H1,Zs,Hp),
-	record(Head,Hp).
+	record(Head,Hp,Id).
 	
-/*	
-satisfiable1([-1*A+ -1*B+7*D+ -1*E+ -1*G+ -1*H>= -5|Cs],H) :-
-	!,
-	satisfiable2([-1*A+ -1*B+7*D+ -1*E+ -1*G+ -1*H>= -5|Cs],H).
-satisfiable1(Cs,H) :-
-	satisfiable(Cs,H).
-	
-satisfiable2(Cs,H) :-
-	satisfiable(Cs,H).
-*/
-
 
 changed(Bs) :- 
 	member(B,Bs),
 	isflagset(B),
 	!.
 
-prove([],[]).
-prove([true],[]).
-prove([B|Bs],[C|Cs]):-
+prove([],[],[]).
+prove([true],[],[]).
+prove([B|Bs],[C|Cs],Ts):-
 	constraint(B,C),
 	!,
-	prove(Bs,Cs).
-prove([B|Bs],Cs):-
-	getoldfact(B,CsOld),
-	prove(Bs,Cs2),
+	prove(Bs,Cs,Ts).
+prove([B|Bs],Cs,[T|Ts]):-
+	getoldfact(B,CsOld,T),
+	prove(Bs,Cs2,Ts),
 	append(CsOld,Cs2,Cs).
 
 narrowOperator(Head,B):-
-	prove(B,Cs),
+	prove(B,Cs,_),
 	varset((Head,Cs),Ys),
 	Head =.. [_|Xs],
 	linearize(Cs,CsLinNOP),
@@ -287,18 +277,20 @@ raise_flag(F):-
 	; assertz(nextflag(Fn/N))
 	).
 
-record(F,H) :-
-	cond_assert(F,H).
+record(F,H,T) :-
+	cond_assert(F,H,T).
 	
 narrow_record(F,H) :- 
 	narrow_cond_assert(F,H).
 
-cond_assert(F,H):-
+cond_assert(F,H,T):-
 	\+ (fact(F,H1), contains(H1,H)),
 	getExistingConstraints(F,H0),
 	convhull(H0,H,H2),
 	assertz(newfact(F,H2)),
-	raise_flag(F).
+	raise_flag(F),
+	%(traceTerm(F,_) -> true; assertz(traceTerm(F,T)),write(traceTerm(F,T)),nl).
+	(traceTerm(F,_) -> true; assertz(traceTerm(F,T))).
 	%check_raise_flag(F,H0,H2).
 
 narrow_cond_assert(F,H):-
@@ -331,12 +323,13 @@ check_raise_flag(_,H0,H2) :-
 check_raise_flag(F,_,_) :-
 	raise_flag(F).
 
-getoldfact(B,Cs1) :-
+getoldfact(B,Cs1,T) :-
 	functor(B,F,N),
 	functor(B1,F,N),
 	oldfact(B1,H),
 	ppl_Polyhedron_get_minimized_constraints(H,Cs2),
-	melt((B1,Cs2),(B,Cs1)).
+	melt((B1,Cs2),(B,Cs1)),
+	traceTerm(B1,T).
 
 fact(X,Y) :-
 	newfact(X,Y).
@@ -595,7 +588,8 @@ cleanWorkspace :-
 	retractall(pathtransition(_)),
 	retractall(atomicproposition(_)),
 	retractall(cEx(_)),
-	retractall(narrowiterations(_)).
+	retractall(narrowiterations(_)),
+	retractall(traceTerm(_,_)).
 
 	
 %%%% Output 
@@ -777,102 +771,32 @@ assertTransition(Hv,Vs,K1) :-
 	assertz(pathtransition(HPath)),
 	assertz(atomicproposition(Prop)).
 
+
+
 findCounterexampleTrace(S) :-
-	(version(false,_,Y) -> true; version(false_ans,_,Y)),
-	operatorcount(J),
-	J1 is J+1,
-	name(Y,K),
-	append("v",K,VK),
-	name(VN,VK),
-	findnsols(1,X,(
-		Goal =.. [VN,X],
-		findTrace(Goal,J1,[]),
-		write(S,counterexample(X)),
-		write(S,'.'),
-		nl(S)),
-%		write(user_output,X),
-%		write(user_output,'.'),
-%		nl(user_output)),
-	[_|_]).
+	(traceTerm(false,Id); traceTerm(false_ans,Id)),
+	!,
+	makeTrace(Id,Trace),
+	write(Trace),nl,
+	write(S,counterexample(Trace)),
+	write(S,'.'),
+	nl(S).
 findCounterexampleTrace(S) :-
 	write(S,'safe'),
 	write(S,'.'),
 	nl(S).	
-	
-/*
-findTrace(true,_,_).
-findTrace(Goal,J,Anc) :-
-	%J > 0,
-	functor(Goal,P,M),
-	functor(H,P,M),
-	\+ member(P,Anc),
-	versiontransition(H,B),
-	melt((H,B),(Goal,Body)),
-	J1 is J-1,
-	findTrace(Body,J1,[P|Anc]).
-findTrace((G,Gs),J,Anc) :-
-	%J > 0,
-	findTrace(G,J,Anc),
-	findTrace(Gs,J,Anc).
 
-*/
-
-findTrace(Goal,_,_) :-
-	findall(H, newAns(H,[]), New),
-	selectOne(New,[],Ws0),
-	nonEmpty(New,Ws0,Ws),
-	member(Goal,Ws).
+makeTrace(Id,Trace) :-
+	my_clause(_,B,Id),
+	makeTraceList(B,Ids),
+	Trace =.. [Id|Ids].
 	
-
-nonEmpty([],Ws,Ws) :-
-	!.
-nonEmpty(_,Ws0,Ws2) :-
-	oneStepPropagate(Ws0,Ws1,New1),
-	nonEmpty(New1,Ws1,Ws2).
-	
-oneStepPropagate(Ws0,Ws1,New1) :-
-	findall(H, newAns(H,Ws0), New1),
-	selectOne(New1,Ws0,Ws1).
-	
-selectOne([H|Hs],Ws0,Ws1) :-
-	functor(H,V,1),
-	functor(H1,V,1),
-	\+ member(H1,Ws0),
+makeTraceList([],[]).
+makeTraceList([true],[]).
+makeTraceList([B|Bs],Ts):-
+	constraint(B,_),
 	!,
-	selectOne(Hs,[H|Ws0],Ws1).
-selectOne([_|Hs],Ws0,Ws1) :-
-	selectOne(Hs,Ws0,Ws1).
-selectOne([],Ws,Ws).
-
-	
-newAns(H1,Ws0) :-
-	versiontransition(H,B),
-	functor(H,V,1),
-	functor(H1,V,1),
-	\+ member(H1,Ws0),
-	melt((H,B),(H1,B1)),
-	witnessTrace(B1,Ws0).
-	
-witnessTrace((B,Bs),Ws) :-	
-	!,
-	member(B,Ws),
-	witnessTrace(Bs,Ws).
-witnessTrace(true,_) :-	
-	!.
-witnessTrace(B,Ws) :-	
-	member(B,Ws).
-
-for(Low,Low,High) :-
-	Low =< High.
-for(I,Low,High) :-
-	Low < High,
-	Low1 is Low+1,
-	for(I,Low1,High).
-
-leftRecursive(H,B) :-
-	H =..[V1|_],
-	B =..[V1|_],
-	!.
-leftRecursive(H,(B,_)) :-
-	H =..[V1|_],
-	B =..[V1|_].
+	makeTraceList(Bs,Ts).
+makeTraceList([B|Bs],[T|Ts]):-
+	traceTerm(B,T),
+	makeTraceList(Bs,Ts).
