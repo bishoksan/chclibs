@@ -14,7 +14,7 @@
 	dummyCList/2,
 	occurs/2,
 	memb1/2
-	], [assertions, isomodes, doccomments]).
+	], [datafacts, assertions, isomodes, doccomments]).
 
 %! \title Some common useful predicates
 

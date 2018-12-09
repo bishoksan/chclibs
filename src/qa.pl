@@ -7,8 +7,9 @@
 	indexQueryClauses/3,
 	addInitQueries/3,
 	addIndexInitQueries/3,
-	makeIndexedAtom/5], [assertions, isomodes, doccomments]).
+	makeIndexedAtom/5], [datafacts, assertions, isomodes, doccomments]).
 
+:- use_module(library(streams)).
 :- use_module(library(read)).
 :- use_module(library(write)).
 :- use_module(library(lists)).

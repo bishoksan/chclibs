@@ -1,4 +1,4 @@
-:- module(load_simple, [load_file/1,my_clause/3], [assertions, isomodes, doccomments]).
+:- module(load_simple, [load_file/1,my_clause/3], [assertions, isomodes, doccomments, dynamic]).
 
 %! \title Simple program loader
 %
@@ -8,8 +8,8 @@
 
 :- dynamic my_clause/3.
 
+:- use_module(library(streams)).
 :- use_module(library(lists)).
-:- use_module(library(dynamic)).
 :- use_module(library(read)).
 :- use_module(common, [conj2List/2]).
 

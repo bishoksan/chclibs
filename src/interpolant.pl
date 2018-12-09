@@ -21,6 +21,7 @@
 %   ```
 %
 
+:- use_module(library(streams)).
 :- use_module(library(write)).
 :- use_module(library(lists)).
 :- use_module(library(ppl)).

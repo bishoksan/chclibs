@@ -4,7 +4,7 @@
 		getPreds/2,
 		writeClauses/2,
 		applyVarNames/1,
-		writeTerms/2], [assertions, isomodes, doccomments]).
+		writeTerms/2], [assertions, isomodes, doccomments, hiord]).
 
 %! \title Program reader
 %
@@ -39,6 +39,7 @@
 %                 ['X'=_F,'Xs'=_G,'Ys'=_H,'Zs'=_I])]
 %    ```
 
+:- use_module(library(streams)).
 :- use_module(library(read)).
 :- use_module(library(write)).
 :- use_module(library(lists)).

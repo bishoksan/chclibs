@@ -1,14 +1,14 @@
 %:- module(cpascc, [main/1], [assertions, isomodes, doccomments]).
-:- module(cpascc, _, [assertions, isomodes, doccomments]).
+:- module(cpascc, _, [assertions, isomodes, doccomments, dynamic]).
 %! \title Convex Polyhedra Analysis
 
 %  \module
 %    NOTE: It also generates path FTA (Bish on 21-01-2016)
 
+:- use_module(library(streams)).
 :- use_module(library(read)).
 :- use_module(library(write)).
 :- use_module(library(aggregates)).
-:- use_module(library(dynamic)).
 
 :- use_module(chclibs(common)).
 

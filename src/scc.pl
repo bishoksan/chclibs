@@ -13,6 +13,7 @@
 %    Baase and Van Gelder, Chapter 7.5
 %    (JPG 20/8/01)
 
+:- use_module(library(streams)).
 :- use_module(library(write)).
 :- use_module(readprog).
 :- use_module(balanced_tree).

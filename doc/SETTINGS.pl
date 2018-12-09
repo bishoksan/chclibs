@@ -1,4 +1,4 @@
-:- module(_, [], [lpdoclib(doccfg)]).
+:- module(_, [], [doccfg]).
 
 %! \title Configuration for chclibs manual
 %  \author Jose F. Morales

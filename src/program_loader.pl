@@ -1,6 +1,6 @@
 :- module(program_loader,[
 	load_file/1,my_clause/3
-   ],[assertions, isomodes, doccomments]).
+   ],[assertions, isomodes, doccomments, dynamic]).
 
 %! \title Program (Horn clauses) loader
 %
@@ -11,7 +11,7 @@
 
 % TODO: merge with load_simple.pl
 
-:- use_module(library(dynamic)).
+:- use_module(library(streams)).
 :- use_module(library(read)).
 :- use_module(library(lists)).
 :- use_module(chclibs(common), [conj2List/2, occurs/2, constraint0/2]).
