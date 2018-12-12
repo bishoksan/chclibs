@@ -5,8 +5,9 @@
 
 % TODO: Add more functionality
 
+:- use_module(library(streams)).
 :- use_module(library(write)).
-:- use_module(library(prolog_sys)).
+:- use_module(engine(runtime_control), [statistics/2]).
 
 start_time :-
 	statistics(runtime,_).

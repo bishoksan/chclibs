@@ -1,7 +1,7 @@
 :- bundle(chclibs).
 version('1.0').
 depends([
-    core,
+    core-[version>='1.18'],
     'github.com/ciao-lang/ciao_ppl',
     'github.com/jfmc/ciao_yices'
 ]).

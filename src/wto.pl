@@ -1,4 +1,4 @@
-:- module(wto, [main/1,wto/6,wto_file/4], [assertions, isomodes, doccomments]).
+:- module(wto, [main/1,wto/6,wto_file/4], [datafacts, assertions, isomodes, doccomments]).
 
 %! \title Finding widening points
 %
@@ -12,6 +12,7 @@
 % TODO: output files in main/1 are hardwired ('wideningpoints_dfs_fb.pl', 'wideningpoints_bfs_alme.pl')
 
 :- use_module(library(lists)).
+:- use_module(library(streams)).
 :- use_module(library(write)).
 :- use_module(library(aggregates)).
 :- use_module(balanced_tree).
