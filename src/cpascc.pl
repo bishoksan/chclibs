@@ -798,6 +798,8 @@ makeTraceList([B|Bs],Ts):-
 	!,
 	makeTraceList(Bs,Ts).
 makeTraceList([B|Bs],[Trace|Ts]):-
-	traceTerm(B,T),
+	functor(B,P,N),
+	functor(B1,P,N),
+	traceTerm(B1,T),
 	makeTrace(T,Trace),
 	makeTraceList(Bs,Ts).
