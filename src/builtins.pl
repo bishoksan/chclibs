@@ -1,5 +1,5 @@
 :- module(builtins, [sp_builtin/1, builtin/1],
-	[assertions, isomodes, doccomments]).
+    [assertions, isomodes, doccomments]).
 
 :- use_module(chclibs(common), [prg_theory/1]).
 
@@ -11,22 +11,22 @@
 %   arrays, etc.) The input language is not Prolog.
 
 sp_builtin(G) :-
-	functor(G,F,N),
-	builtin_export(_,F,N,_),
-	!.
+    functor(G,F,N),
+    builtin_export(_,F,N,_),
+    !.
 sp_builtin(G) :-
-	functor(G,F,N),
-	is_module_expanded(F,MP,Module),
-	builtin_export(Module,MP,N,_),
-	!.
-	
+    functor(G,F,N),
+    is_module_expanded(F,MP,Module),
+    builtin_export(Module,MP,N,_),
+    !.
+    
 is_module_expanded(Goal,PGoal,Module):-
- 	atom_concat(Module,Post,Goal),
- 	atom_concat(':',PGoal,Post),!.
-	
+    atom_concat(Module,Post,Goal),
+    atom_concat(':',PGoal,Post),!.
+    
 builtin(G) :-
-	functor(G,F,N),
-	builtin_export(_,F,N,_).
+    functor(G,F,N),
+    builtin_export(_,F,N,_).
 
 builtin_export(arrays,read,3,0) :- prg_theory(array). % (fake module for array theories)
 builtin_export(arrays,write,4,0) :- prg_theory(array). % (fake module for array theories)

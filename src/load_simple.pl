@@ -14,33 +14,33 @@
 :- use_module(common, [conj2List/2]).
 
 load_file(F) :-
-	retractall(my_clause(_,_,_)),
-	open(F,read,S),
-	remember_all(S,1),
-	close(S).
+    retractall(my_clause(_,_,_)),
+    open(F,read,S),
+    remember_all(S,1),
+    close(S).
 
 remember_all(S,K) :-
-	read(S,C),
-	( C == end_of_file ->
-	    true
-	; remember_clause(C,K),
-	  K1 is K+1,
-	  remember_all(S,K1)
-	).
+    read(S,C),
+    ( C == end_of_file ->
+        true
+    ; remember_clause(C,K),
+      K1 is K+1,
+      remember_all(S,K1)
+    ).
 
 remember_clause(A, _) :- var(A), !. % Drop
 remember_clause((:- _), _):- !. % Drop all non-execute/specialize clauses
 remember_clause((A :- B), K) :- !,
-	conj2List(B,BL),
-	makeClauseId(K,CK),
-	assertz(my_clause(A,BL,CK)).
+    conj2List(B,BL),
+    makeClauseId(K,CK),
+    assertz(my_clause(A,BL,CK)).
 remember_clause(A,K) :-
-	makeClauseId(K,CK),
-	assertz(my_clause(A,[],CK)).
+    makeClauseId(K,CK),
+    assertz(my_clause(A,[],CK)).
 
 makeClauseId(K,CK) :-
-	name(K,NK),
-	append("c",NK,CNK),
-	name(CK,CNK).
+    name(K,NK),
+    append("c",NK,CNK),
+    name(CK,CNK).
 
 
