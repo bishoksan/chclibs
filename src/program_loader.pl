@@ -16,10 +16,14 @@
 :- use_module(library(lists)).
 :- use_module(chclibs(common), [conj2List/2, occurs/2, constraint0/2]).
 
+:- use_module(library(operators)).
+:- use_module(engine(runtime_control), [set_prolog_flag/2]).
+
 :- dynamic my_clause/3.
 
 load_file(F) :-
     retractall(my_clause(_,_,_)),
+    enable_assrt_syntax,
     open(F,read,S),
     remember_all(S,1),
     close(S).
@@ -122,3 +126,38 @@ replaceDupl(X1,[X2|Xs],XK,[XK|Xs]) :-
 replaceDupl(X,[X1|Xs],Y,[X1|Xs1]) :-
     replaceDupl(X,Xs,Y,Xs1).
 
+% added to handle standard operators in files with assertions
+
+enable_assrt_syntax :-
+    % flags for hiord
+    set_prolog_flag(read_hiord, on),
+    % operators for assertions
+    op(975, xfx,(=>)),
+    op(978, xfx,(::)),
+    op(1150, fx,(decl)),
+    op(1150,xfx,(decl)),
+    op(1150, fx,(pred)),
+    op(1150,xfx,(pred)),
+    op(1150, fx,(func)),
+    op(1150,xfx,(func)),
+    op(1150, fx,(prop)),
+    op(1150,xfx,(prop)),
+    op(1150, fx,(modedef)),
+    op(1150,xfx,(modedef)),
+    op(1150, fx,(calls)),
+    op(1150,xfx,(calls)),
+    op(1150, fx,(success)),
+    op(1150,xfx,(success)),
+    op(1150, fx,(test)),
+    op(1150,xfx,(test)),
+    op(1150, fx,(texec)),
+    op(1150,xfx,(texec)),
+    op(1150, fx,(comp)),
+    op(1150,xfx,(comp)),
+    op(1150, fx,(entry)),
+    op(1150,xfx,(entry)),
+    op(1150, fx,(exit)),
+    op(1150,xfx,(exit)),
+    % operators for regtypes
+    op(1150, fx,(regtype)),
+    op(1150,xfx,(regtype)).
