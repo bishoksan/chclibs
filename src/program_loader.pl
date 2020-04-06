@@ -1,5 +1,5 @@
 :- module(program_loader,[
-    load_file/1,my_clause/3
+    load_file/1,my_clause/3, my_directive/1
    ],[assertions, isomodes, doccomments, dynamic]).
 
 %! \title Program (Horn clauses) loader
@@ -20,6 +20,7 @@
 :- use_module(engine(runtime_control), [set_prolog_flag/2]).
 
 :- dynamic my_clause/3.
+:- dynamic my_directive/1.
 
 load_file(F) :-
     retractall(my_clause(_,_,_)),
@@ -37,7 +38,8 @@ remember_all(S,K) :-
       remember_all(S,K1)
     ).
 
-remember_clause((A :- B),K) :- !,
+remember_clause((A :- B),K) :- 
+	!,
     atomconstraints(A, ACs0,ACs1, Ant),
     writeAtomEq(Ant,Anodupl,Es0,Es1),
     %
@@ -48,6 +50,9 @@ remember_clause((A :- B),K) :- !,
     BCs1=BL0,
     makeClauseId(K,CK),
     assertz(my_clause(Anodupl,ACs0,CK)).
+remember_clause((:- D),_) :- 
+	!,
+    assertz(my_directive(D)).
 remember_clause(A,K) :-
     atomconstraints(A, ACs0, ACs1, Ant),
     writeAtomEq(Ant,Anodupl,Es0,[]),
