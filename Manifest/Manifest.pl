@@ -8,7 +8,13 @@ depends([
 alias_paths([
     chclibs = 'src'
 ]).
+
+cmd('src/tpmsg').
+cmd('src/qa').
+cmd('src/thresholds1').
+
 lib('src').
+
 manual('chclibs', [main='doc/SETTINGS.pl']).
 
 
