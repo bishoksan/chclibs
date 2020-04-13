@@ -9,9 +9,9 @@ alias_paths([
     chclibs = 'src'
 ]).
 
-cmd('src/tpmsg').
-cmd('src/qa').
-cmd('src/thresholds1').
+cmd('chclibs-tpmsg', [main='src/tpmsg']).
+cmd('chclibs-qa', [main='src/qa']).
+cmd('chclibs-thresholds1', [main='src/thresholds1']).
 
 lib('src').
 
