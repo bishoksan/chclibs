@@ -1,4 +1,4 @@
-:- module(tpmsg,_,[dynamic]).
+:- module(tpmsg,[main/1],[dynamic]).
 
 :- use_module(chclibs(common)).
 :- use_module(chclibs(canonical)).
