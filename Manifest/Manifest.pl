@@ -12,6 +12,9 @@ alias_paths([
 cmd('chclibs-tpmsg', [main='src/tpmsg']).
 cmd('chclibs-qa', [main='src/qa']).
 cmd('chclibs-thresholds1', [main='src/thresholds1']).
+cmd('chclibs-unfoldForward', [main='src/unfoldForward']).
+cmd('chclibs-raf', [main='src/raf']).
+cmd('chclibs-far', [main='src/far']).
 
 lib('src').
 
