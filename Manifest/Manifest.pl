@@ -16,6 +16,7 @@ cmd('chclibs-unfoldForward', [main='src/unfoldForward']).
 cmd('chclibs-raf', [main='src/raf']).
 cmd('chclibs-far', [main='src/far']).
 cmd('chclibs-cpascc', [main='src/cpascc']).
+cmd('chclibs-insertProps', [main='src/insertProps']).
 
 lib('src').
 
