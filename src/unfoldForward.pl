@@ -1,10 +1,16 @@
-:- module(unfoldForward,[main/1]).
+:- module(unfoldForward,[main/1],[dynamic]).
 
+:- use_module(library(read)).
+:- use_module(library(write)).
+:- use_module(library(streams)).
+:- use_module(library(aggregates)).
 :- use_module(library(lists)).
 :- use_module(chclibs(program_loader)).
 :- use_module(chclibs(common)).
 :- use_module(chclibs(builtins)).
 :- use_module(chclibs(setops)).
+:- use_module(library(system), [mktemp_in_tmp/2]).
+:- use_module(library(system_extra), [del_file_nofail/1]).
 
 
 :- dynamic(deterministic/0).
@@ -172,18 +178,18 @@ writeBodyAtoms(S,[B1,B2|Bs]) :-
     nl(S),
     writeBodyAtoms(S,[B2|Bs]).
 
+% Read term Q1 from atom Q
 convertQueryString(Q,Q1) :-
-    open('/tmp/querystring',write,S),
+    mktemp_in_tmp('querystring.XXXXXXXX', TMP),
+    open(TMP,write,S),
     write(S,Q),
     write(S,'.'),
     nl(S),
     close(S),
-    open('/tmp/querystring',read,S1),
+    open(TMP,read,S1),
     read(S1,Q1),
     close(S1),
-    system('rm /tmp/querystring').
-    
-
+    del_file_nofail(TMP).
 
 detPred(P/N) :-
     functor(A,P,N),
