@@ -14,6 +14,8 @@
 
 
 :- dynamic(deterministic/0).
+:- dynamic(callequals/0).
+
 
 
 go3(F,OutPFile,Q) :-
@@ -98,7 +100,8 @@ setOptions(ArgV,File,OutS,Entry) :-
     (member(outputFile(user_output),Options) -> OutS=user_output;
             member(outputFile(OutFile),Options), open(OutFile,write,OutS); 
                 OutS=user_output),
-    (member(deterministic,Options) -> assert(deterministic); true).
+    (member(deterministic,Options) -> assert(deterministic); true),
+    (member(callequals,Options) -> assert(callequals); true).
 
 % get_options/3 provided by Michael Leuschel
 get_options([],[],[]).
@@ -120,10 +123,12 @@ recognised_option('-prg',  programO(R),[R]).
 recognised_option('-o',    outputFile(R),[R]).
 recognised_option('-entry',  entry(Q),[Q]).
 recognised_option('-det',  deterministic,[]).
+recognised_option('-eq',  callequals,[]).
 
 cleanup :-
     retractall(my_clause(_,_,_)),
-    retractall(deterministic).
+    retractall(deterministic),
+    retractall(callequals).
 
 unfoldForwardEdges(P/N,Us,OutS) :-
     my_clause(H,B,_),
@@ -146,7 +151,8 @@ unfoldForward([B|Bs],Us,R) :-
     my_clause(B,Body,_),
     append(Body,Bs,Bs1),
     unfoldForward(Bs1,Us,R).
-unfoldForward([X=X|Bs],Us,R) :-     % unfold equalities
+unfoldForward([X=X|Bs],Us,R) :-     % unfold equalities if option is set
+	callequals,
     !,
     unfoldForward(Bs,Us,R).
 unfoldForward([B|Bs],Us,[B|R]) :-
