@@ -5,6 +5,7 @@
 :- use_module(library(streams)).
 :- use_module(library(aggregates)).
 :- use_module(library(lists)).
+:- use_module(library(cyclic_terms)).
 :- use_module(chclibs(program_loader)).
 :- use_module(chclibs(common)).
 :- use_module(chclibs(builtins)).
@@ -138,12 +139,22 @@ unfoldForwardEdges(P/N,Us,OutS) :-
     writeClauses(Rs,OutS),
     fail.
 unfoldForwardEdges(_,_,_).
-
-
     
 resultants(H,B,Us,Rs) :-
-    findall((H:-R), (unfoldForward(B,Us,R), numbervars((H,R),0,_)), Rs).
+    findall((H1:-R2), (
+    	unfoldForward(B,Us,R), 
+    	uncycle_term((H:-R),((H1:-R1),Eqs)), 	% Allow for cyclic terms
+    	appendTail(Eqs,R1,R2),
+    	numbervars((H1,R2),0,_)), Rs).
+    	
+appendTail([],Ys,Ys) :- 	% End of open list
+	!.
+appendTail([X-A|Xs],Ys,[A=X|Zs]) :-
+	appendTail(Xs,Ys,Zs).
 
+unfoldForward([true|Bs],Us,R) :-
+	!,
+    unfoldForward(Bs,Us,R).
 unfoldForward([B|Bs],Us,R) :-
     functor(B,P,N),
     member(P/N,Us),
@@ -199,7 +210,9 @@ convertQueryString(Q,Q1) :-
 
 detPred(P/N) :-
     functor(A,P,N),
-    findall(C,my_clause(A,_,C),[_]).    
+    findall(C,my_clause(A,_,C),Cls),
+    length(Cls,L),
+    L=<1.    
     
 unfoldablePreds(Ps,BPs,Us) :-
     \+ deterministic,

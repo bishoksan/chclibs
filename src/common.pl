@@ -39,6 +39,7 @@ constraint(X>=Y, X>=Y).
 constraint(X=<Y, X=<Y).
 constraint(X<Y, X<Y).
 constraint(_\==_,0=0). % TODO: document (drops constraint)
+constraint(_==_,0=0). % TODO: document (drops constraint)
 constraint(_=\=_,0=0). % TODO: document (drops constraint)
 constraint(read(F,X,Y), read(F,X,Y)) :- prg_theory(array). % TODO:{arrays}
 constraint(write(F,X,Y,F2), write(F,X,Y,F2)) :- prg_theory(array). % TODO:{arrays}
