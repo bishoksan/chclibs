@@ -1,4 +1,4 @@
-%:- module(cpascc, [main/1], [assertions, isomodes, doccomments]).
+%:- module(cpascc, [main/1,cpa/1], [assertions, isomodes, doccomments]).
 :- module(cpascc, _, [assertions, isomodes, doccomments, dynamic]).
 %! \title Convex Polyhedra Analysis
 
@@ -10,7 +10,7 @@
 :- use_module(library(write)).
 :- use_module(library(aggregates)).
 
-:- use_module(chclibs(common)).
+:- use_module(common).
 
 :- use_module(setops).
 :- use_module(canonical).
@@ -56,10 +56,13 @@
 
 
 go(File) :-
-    go2(File,temp).
+	start_ppl,
+    go2(File,temp),
+    end_ppl.
     
 go2(FileIn,FileOut) :-
-    cpascc:main(
+    start_ppl,
+    cpa(
             ['-prg',FileIn,
             '-widenpoints','widenpoints',
             '-widenout','widencns',
@@ -68,24 +71,8 @@ go2(FileIn,FileOut) :-
             '-delaywidening','0',
             '-withwut',
             '-wfunc','h79',
-            '-o',FileOut]).
-                    
-recognised_option('-prg',programO(R),[R]).
-recognised_option('-widenpoints',widenP(R),[R]).
-recognised_option('-widenout',widenO(R),[R]).
-recognised_option('-narrowout',narrowO(R),[R]).
-recognised_option('-narrowiterations',narrowiterationsO(R),[R]).
-recognised_option('-delaywidening',delaywiden(R),[R]).
-recognised_option('-wfunc',widenF(F),[F]).
-recognised_option('-v',verbose,[]). % some verbose
-recognised_option('-debug-print',debug_print,[]). % detailed comments
-recognised_option('-querymodel',querymodel(Q),[Q]).
-recognised_option('-nowpscalc',nowpscalc,[]).
-recognised_option('-withwut',withwut,[]).
-recognised_option('-detectwps',detectwps(M),[M]).
-recognised_option('-o',factFile(F),[F]).
-recognised_option('-cex',counterExample(F),[F]).
-recognised_option('-threshold',thresholdFile(F),[F]).
+            '-o',FileOut]),
+    end_ppl.
     
 main(['-prg',FileIn]) :-
     !,
@@ -94,6 +81,13 @@ main(['-prg',FileIn, '-o', FileOut]) :-
     !,
     go2(FileIn,FileOut).
 main(ArgV) :-
+	start_ppl,
+    cpa(ArgV),
+    end_ppl.
+    
+% cpa/1 can be called from another module in which PPL is already initialised
+
+cpa(ArgV) :-
     verbose_message(['Starting Convex Polyhedra analysis']),
     get_options(ArgV,Options,_),
     cleanWorkspace,
@@ -103,16 +97,14 @@ main(ArgV) :-
     load_file(File),
     dependency_graph(Es,Vs),
     scc_graph(Es,Vs,G),
-    start_ppl,
     iterate(G),
     narrow,
     verbose_message(['Convex Polyhedra Analysis Succeeded']),
     ( flag(verbose) -> end_time(user_output) ; true ),
     !,
     factFile(FactFile),
-    generateCEx,
-    ppl_finalize.
-
+    generateCEx.
+    
 generateCEx:-
     cEx('$NOCEX'),
     !.
@@ -499,6 +491,23 @@ dependency_graph(Es,Vs) :-
     
 
 %%%% Getting and setting options
+
+recognised_option('-prg',programO(R),[R]).
+recognised_option('-widenpoints',widenP(R),[R]).
+recognised_option('-widenout',widenO(R),[R]).
+recognised_option('-narrowout',narrowO(R),[R]).
+recognised_option('-narrowiterations',narrowiterationsO(R),[R]).
+recognised_option('-delaywidening',delaywiden(R),[R]).
+recognised_option('-wfunc',widenF(F),[F]).
+recognised_option('-v',verbose,[]). % some verbose
+recognised_option('-debug-print',debug_print,[]). % detailed comments
+recognised_option('-querymodel',querymodel(Q),[Q]).
+recognised_option('-nowpscalc',nowpscalc,[]).
+recognised_option('-withwut',withwut,[]).
+recognised_option('-detectwps',detectwps(M),[M]).
+recognised_option('-o',factFile(F),[F]).
+recognised_option('-cex',counterExample(F),[F]).
+recognised_option('-threshold',thresholdFile(F),[F]).
 
 set_options(Options,File,FactFile) :-
     member(programO(File),Options),
