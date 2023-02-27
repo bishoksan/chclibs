@@ -1,4 +1,4 @@
-:- module(linearize, [linearize/2, linear_constraint/1], [assertions, isomodes, doccomments]).
+:- module(linearize, [linearize/2, linear_constraint/1,const/1,linear_term/1], [assertions, isomodes, doccomments]).
 
 :- use_module(library(lists)).
 
@@ -74,7 +74,7 @@ linear_term(X/Y) :-
     linear_term(X).
 
 const(X) :-
-    number(X),!.
+    integer(X),!.
 const(X) :-
     var(X),!,fail.
 const(X+Y) :-
