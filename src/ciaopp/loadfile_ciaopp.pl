@@ -4,7 +4,7 @@
    ],[assertions, isomodes, doccomments, dynamic]).
 
 :- use_module(ciaopp(ciaopp)).
-:- use_module(ciaopp(p_unit),[program/2,replace_program/2]).
+:- use_module(library(compiler/p_unit),[program/2,replace_program/2]).
 :- use_module(chclibs(common), [conj2List/2, occurs/2, constraint0/2]).
 
 :- use_module(library(write)).

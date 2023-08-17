@@ -7,7 +7,7 @@
 %    clause). Drops any `:- _` declaration.
 
 :- use_module(ciaopp(ciaopp)).
-:- use_module(ciaopp(p_unit),[program/2,replace_program/2]).
+:- use_module(library(compiler/p_unit),[program/2,replace_program/2]).
 
 
 :- dynamic my_clause/3.
