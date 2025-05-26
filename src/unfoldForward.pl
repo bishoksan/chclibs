@@ -208,7 +208,9 @@ convertQueryString(Q,Q1) :-
     close(S1),
     del_file_nofail(TMP).
 
+
 detPred(P/N) :-
+	P\==random,		% random is non-deterministic even though it has single result
     functor(A,P,N),
     findall(C,my_clause(A,_,C),Cls),
     length(Cls,L),
