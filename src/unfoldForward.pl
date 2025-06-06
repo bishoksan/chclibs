@@ -209,8 +209,9 @@ convertQueryString(Q,Q1) :-
     del_file_nofail(TMP).
 
 
+
 detPred(P/N) :-
-	P\==random,		% random is non-deterministic even though it has single result
+	%P\==random,		% random is non-deterministic even though it has single result
     functor(A,P,N),
     findall(C,my_clause(A,_,C),Cls),
     length(Cls,L),
@@ -223,6 +224,7 @@ unfoldablePreds(Ps,BPs,Us) :-
 unfoldablePreds([],_,[]).
 unfoldablePreds([P|Ps],BPs,[P|Us]) :-
     \+ member(P,BPs),
+    \+ nonUnfoldable(P),
     detPred(P),
     !,
     unfoldablePreds(Ps,BPs,Us).
@@ -232,3 +234,9 @@ unfoldablePreds([_|Ps],BPs,Us) :-
 hasDef(B) :-
     my_clause(B,_,_),
     !.
+
+nonUnfoldable(P/N) :-
+	member(P/N,[random/_]),
+	!.
+nonUnfoldable(P/_) :-
+	atom_concat(observe,_,P).  % don't unfold anything starting with observe
