@@ -659,11 +659,13 @@ addWideningPoint(_).
 % Add a threshold constraint for P/N+1 if there exists one for P/N
 addThresholds(P/N) :-
 	functor(A,P,N),
-	A=..[P|Xs],
-	append(Xs,[_],XsK),
-	A1=..[P|XsK],
 	invariant(A,C),
-	assert(invariant(A1,C)),
+	melt((A,C),(MA,MC)),
+	MA=..[P|Xs],
+	append(Xs,[_],XsK), 	% add extra arg
+	MA1=..[P|XsK],
+	numbervars((MA1,MC),0,_),
+	assert(invariant(MA1,MC)),
 	fail.
 addThresholds(_).
 
@@ -676,13 +678,6 @@ addWidenpoint([WP|WPs],P/N,[WP|WPs1]) :-
 addWidenpoint([],_,[]).
 
 possibleWidenPs([],[]).
-possibleWidenPs([(Dg,F,N)|WPs],[Fn|PWPs]) :-
-    widening_point(F/N,Dg,_Delays),
-    functor(Fn,F,N),
-    newfact(Fn,_),
-    oldfact(Fn,_),
-    !,
-    possibleWidenPs(WPs,PWPs).
 possibleWidenPs([(Dg,count(F),N)|WPs],[Fn|PWPs]) :-
     widening_point(F/N,Dg,_Delays),
     functor(Fn,F,N),
@@ -691,6 +686,13 @@ possibleWidenPs([(Dg,count(F),N)|WPs],[Fn|PWPs]) :-
     origPredDiff(H0,H1,F/N),
     !,
     %(F/N==while__28_ans/9 -> showWidenFacts(F/N); true),
+    possibleWidenPs(WPs,PWPs).
+possibleWidenPs([(Dg,F,N)|WPs],[Fn|PWPs]) :-
+    widening_point(F/N,Dg,_Delays),
+    functor(Fn,F,N),
+    newfact(Fn,_),
+    oldfact(Fn,_),
+    !,
     possibleWidenPs(WPs,PWPs).
 possibleWidenPs([_|WPs],PWPs) :-
     !,
