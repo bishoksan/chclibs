@@ -33,12 +33,11 @@ go2(FileIn,FileOut) :-
     cpa(
             ['-prg',FileIn,
             '-widenpoints','widenpoints',
-            '-widenout','widencns',
-            '-narrowout','narrowcns',
             '-narrowiterations','0',
             '-delaywidening','0',
             '-withwut',
             '-wfunc','h79',
+            '-rank',
             '-o',FileOut]),
     end_ppl.
     
@@ -110,13 +109,16 @@ iterate([(non_recursive,P)|SCCs],Prog,Options0,Options2,Soln0,Soln2) :-
     debug_message(['Iteration ',J],Options0),
     iterate(SCCs,Prog,Options1,Options2,Soln1,Soln2).
 iterate([(recursive,Ps)|SCCs],Prog,Options0,Options4,Soln0,Soln4) :-
+	get(rank,yes,Options0),
     sccClauses(Ps,Prog,Cls),
-    select(P,Ps,Ps1),
-	pClauses(Cls,P,PCls),
-    hasRankingFunction(P,Ps1,PCls,Soln0,R),
-    debug_message(['Recursive component with ranking function ',R,' on ',P],Options0),
+    %select(P,Ps,Ps1),
+	%pClauses(Cls,P,PCls),
+    %hasRankingFunction(P,Ps1,PCls,Soln0,R),
+    rankingFunctions(Ps,Ps,Cls,Soln0,PRs),
+    PRs \== [], 	% at least one ranking function found
+    debug_message(['Recursive component with ranking functions ',PRs],Options0),
     !,
-    sccWithRf(Cls,P,R,Options0,Options1,Soln0,Soln1),
+    sccWithRf(Cls,PRs,Options0,Options1,Soln0,Soln1),
     sccWithoutRf(Cls,Options0,Options2,Soln0,Soln2),
     meetSolutions(Ps,Soln1,Soln2,Soln3),
     mergeOptions(Options1,Options2,Options3),
@@ -128,23 +130,79 @@ iterate([(recursive,Ps)|SCCs],Prog,Options0,Options2,Soln0,Soln2) :-
     iterate(SCCs,Prog,Options1,Options2,Soln1,Soln2).
 iterate([],_,Opts,Opts,Solns,Solns).
 
+rankingFunctions([P|Ps],Qs,Cls,Soln0,[(P,R)|PRs]) :-
+	pClauses(Cls,P,PCls),
+	select(P,Qs,Qs1),
+	hasRankingFunction(P,Qs1,PCls,Soln0,R),
+	!,
+	rankingFunctions(Ps,Qs,Cls,Soln0,PRs).
+rankingFunctions([_|Ps],Qs,Cls,Soln0,PRs) :-
+	rankingFunctions(Ps,Qs,Cls,Soln0,PRs).
+rankingFunctions([],_,_,_,[]).
+
 sccClauses(Ps,Prog,PCls) :-
 	findall(clause(H,B,Id),
 		(member(P/N,Ps), member(clause(H,B,Id),Prog),functor(H,P,N)),
 		 PCls).
     
-sccWithRf(Cls,P,R,Options0,Options3,Soln0,Soln3) :-    
-    addCounters(Cls,P,R,KCls),
-    addWideningPoint(P,Options0,Options1),
-    addThresholds(P,Options1,Options2),
-    initSolution(P,Soln0,Soln1),
-    linkClause(P,R,Cl),
-    recursive_scc(firstpass,[Cl|KCls],Options2,Options3,Soln1,Soln2),
-    narrow([Cl|KCls],Options3,Soln2,Soln3),
+sccWithRf(Cls,PRs,Options0,Options3,Soln0,Soln3) :-  
+	addPCounters(PRs,Cls,PKCls),
+	addPWideningPoints(PRs,Options0,Options1),
+	addPThresholds(PRs,Options1,Options2),
+	linkClauses(PRs,LCls),
+	initSolutions(PRs,Soln0,Soln1),
+	append(LCls,PKCls,AllCls),
+    recursive_scc(firstpass,AllCls,Options2,Options3,Soln1,Soln2),
+    narrow(AllCls,Options3,Soln2,Soln3),
     ( member((debug_print,yes),Options3) ->
-        check_entailed(Cl,Soln3,Options3)
+        checkEntailedPR(LCls,Soln3,Options3)
     ; true
     ).
+    
+addPCounters([(P,R)|PRs],Cls,PKCls1) :-
+	addCounters(Cls,P,R,PCls),
+	addPCounters(PRs,Cls,PKCls0),
+	append(PCls,PKCls0,PKCls1).
+addPCounters([],_,[]).
+
+addPWideningPoints([(P,_)|PRs],Options0,Options2) :-
+	addWideningPoint(P,Options0,Options1),
+    addPWideningPoints(PRs,Options1,Options2).
+addPWideningPoints([],Opts,Opts).
+
+addPThresholds([(P,_)|PRs],Options0,Options2) :-
+	addThresholds(P,Options0,Options1),
+	addPThresholds(PRs,Options1,Options2).
+addPThresholds([],Opts,Opts).
+
+linkClauses([(P,R)|PRs],[Cl|LCls]) :-
+    linkClause(P,R,Cl),
+	linkClauses(PRs,LCls).
+linkClauses([],[]).
+
+initSolutions([(P,_)|PRs],Soln0,Soln2) :-
+    initSolution(P,Soln0,Soln1),
+	initSolutions(PRs,Soln1,Soln2).
+initSolutions([],Soln,Soln).
+
+checkEntailedPR([Cl|LCls],Soln,Options) :-
+	check_entailed(Cl,Soln,Options),
+	checkEntailedPR(LCls,Soln,Options).
+checkEntailedPR([],_,_).
+
+% sccWithRf(Cls,P,R,Options0,Options3,Soln0,Soln3) :-    
+%     addCounters(Cls,P,R,KCls),
+%     addWideningPoint(P,Options0,Options1),
+%     addThresholds(P,Options1,Options2),
+%     initSolution(P,Soln0,Soln1),
+%     linkClause(P,R,Cl),
+%     recursive_scc(firstpass,[Cl|KCls],Options2,Options3,Soln1,Soln2),
+%     narrow([Cl|KCls],Options3,Soln2,Soln3),
+%     ( member((debug_print,yes),Options3) ->
+%         check_entailed(Cl,Soln3,Options3)
+%     ; true
+%     ).
+    
     
 sccWithoutRf(Cls,Options0,Options1,Soln0,Soln2) :-
     recursive_scc(firstpass,Cls,Options0,Options1,Soln0,Soln1),
@@ -253,9 +311,7 @@ updateSolnsSimple([fact(A,H0,J)|NewSols],Soln0,Soln2) :-
 updateSolnsSimple([],Solns,Solns).
 
 
-updateFactSimple(A,HW,J,Soln0,Soln1) :-
-	append(Fs,[fact(A,_,_)|Fs1],Soln0), 	% Replace the old fact
-	append(Fs,[fact(A,HW,J)|Fs1],Soln1).
+
 
 condUpdateFact(A,H0,J,Soln0,Soln1,Ch) :-
 	append(Fs,[fact(A,H1,_)|Fs1],Soln0), 
@@ -283,7 +339,7 @@ meetSolutions([P/N|Ps],Soln0,Soln1,Soln3) :-
 	member(fact(A,H1,J1),Soln1),
 	ppl_Polyhedron_intersection_assign(H0,H1),
 	(J0>J1 -> J=J0; J=J1),
-	updateFactSimple(A,H0,J,Soln0,Soln2),
+	updateFact(A,H0,J,Soln0,Soln2),
 	meetSolutions(Ps,Soln2,Soln1,Soln3).
 meetSolutions([],Soln0,_,Soln0).  % Copy solutions from Soln0
 
@@ -311,9 +367,9 @@ linkClause(P/N,R,clause(H,[K=<R+1,HK],PId)) :-
 	numbervars((H,K),0,_),
 	atom_concat(P,k,PId).
 
-hasRankingFunction(P,Ps1,PCls,Soln,R) :-
-	hasStaticRankingFunction(P,Ps1,PCls,Soln,R),
-	!.
+%hasRankingFunction(P,Ps1,PCls,Soln,R) :-
+%	hasStaticRankingFunction(P,Ps1,PCls,Soln,R),
+%	!.
 hasRankingFunction(P,Ps1,PCls,Soln,R) :-
 	hasDynamicRankingFunction(P,Ps1,PCls,Soln,R).
 	
@@ -321,14 +377,14 @@ hasStaticRankingFunction(P,_Ps1,PCls,_Soln,R) :-
 	singleRecursion(PCls,P,H,Bs,B),
 	separate_constraints(Bs,Cs1,_),
 	melt((H,Cs1,B),(MH,Cs,MB)),
-	rankingFunction(MH,Cs,MB,R).
+	findRankingFunction(MH,Cs,MB,R).
 	
 hasDynamicRankingFunction(P,Ps1,PCls,Soln,R) :-
 	singleRecursion(PCls,P,H,Bs,B),
 	sameScc(Bs,Ps1,Bs1),
 	melt((H,Bs1,B),(MH,MBs,MB)),
 	prove(MBs,Cs,_,Soln),
-	rankingFunction(MH,Cs,MB,R).
+	findRankingFunction(MH,Cs,MB,R).
 	
 sameScc([B|Bs],Ps,Bs1) :-
 	functor(B,Q,M),
@@ -360,21 +416,38 @@ baseCases(P,[clause(_H,B,_Id)|Cls]) :-
 	baseCases(P,Cls).
 baseCases(_,[]).
 
-rankingFunction(MH,MCs,MB,R) :-
-	functor(MH,P,N),
-	MH=..[P|Ys0],
-	MB=..[P|Ys1],
-	freshVars(Ys0,Ws0,ACs1,MCs),
-	freshVars(Ys1,Ws1,ACs,ACs1),
+findRankingFunction(H,Cs,B,RF) :-
+	rankingFunctionSpace(H,Cs,B,H1,Point),
+	ppl_Polyhedron_space_dimension(H1,N0),
+	pickRankingFunction(H1,N0,Point,RF).
+	
+pickRankingFunction(H1,N0,_Point,RF) :-
+	getConstraint(H1,Space),
+	%write('Space = '),write(Space),nl,
+	candidateRFs(Space,N0,Point),
+	instantiateRF(Point,N0,RF),
+	!.
+pickRankingFunction(_H1,N0,point(Q),RF) :-	% Use PPL soln if search does not find r.f.
+	makeAffineFunction(Q,N0,RF).
+	
+
+% Find the space of linear ranking functions
+
+rankingFunctionSpace(H,Cs,B,H1,RF0) :-
+	functor(H,P,N),
+	H=..[P|Ys0],
+	B=..[P|Ys1],
+	freshVars(Ys0,Ws0,ACs1,Cs),
+	freshVars(Ys1,Ws1,ACs,ACs1),		% Ensure state vars are distinct
 	numbervars((Ws0,Ws1,ACs),0,_),
 	elimLocals(ACs,(Ws0,Ws1),Cs1),
 	melt((Cs1,Ws0,Ws1),(Cs2,Zs,Zs1)),
-	numbervars((Zs1,Zs,Cs2),0,_),		% get vars in order required by PPL
-	makePolyhedron(Cs2,H),
+	numbervars((Zs1,Zs,Cs2),0,_),		% Get vars in the order required by PPL
+	makePolyhedron(Cs2,H0),
 	N2 is 2*N,
-	raiseDimension(H,N2),
-	rankingFunction_MS(H,point(Q)),
-	makeAffineFunction(Q,N,R).	
+	raiseDimension(H0,N2),
+	ppl_all_affine_ranking_functions_MS_NNC_Polyhedron(H0,H1),
+	rankingFunction_MS(H0,RF0). 	% one r.f. backup soln.
 	
 elimLocals(B,(Xs,Xs1),B2) :-
 	linearPart(B,BL),
@@ -405,6 +478,185 @@ linearPart(B,BL) :-
 	melt(B,B1),
 	linearize(B1,BL),
 	B=B1.
+	
+% Successively pick a value for each dimension of the r.f. space
+% Pick interior value near the boundary
+% Pick non-zero values first
+% Arbitrary choice of 3 values nearest to boundary, could be varied.
+
+%candidateRFs(Space,N0,RFs) :-
+%	allocate(Space,0,N0,[],RFs).
+
+candidateRFs(Space,N0,RFs) :-
+	allBounds(Space,N0,Bs),
+	orderChoices(Bs,Bs1),
+	%write('Bounds: '),write(Bs),nl,
+	%write('Ordered bounds: '),write(Bs1),nl,
+	orderedAllocate(Bs1,N0,Space,RFs).
+	
+orderedAllocate(['$VAR'(K)-_|Bs],N0,Space,['$VAR'(K)=J|Js]) :-
+	bounds(Space,N0,'$VAR'(K),L,U),
+	pickVal(L,U,J),
+	feasible(['$VAR'(K)=J|Space]),
+	orderedAllocate(Bs,N0,['$VAR'(K)=J|Space],Js).
+orderedAllocate([],_,_,[]).
+	
+allocate(_,K,N0,RFs,RFs) :-
+	K>=N0.
+allocate(Space,K,N0,Js0,Js1) :-
+	K<N0,
+	K1 is K+1,
+	bounds(Space,N0,'$VAR'(K),L,U),
+	pickVal(L,U,J),
+	feasible(['$VAR'(K)=J|Space]),
+	allocate(['$VAR'(K)=J|Space],K1,N0,['$VAR'(K)=J|Js0],Js1).
+
+feasible(Cs) :-
+	ppl_initialize,	% needed when backtracking past ppl_finalize
+	makePolyhedron(Cs,H),
+	\+ ppl_Polyhedron_is_empty(H),
+	!.
+	
+pickVal(L,U,V) :-
+	choiceList(L,U,Vs),
+	member(V,Vs).
+	
+
+choiceList(L,U,[L]) :-
+	L==U,
+	number(L),
+	!.
+choiceList(false,U,Vs) :-
+	number(U),
+	!,
+	U1 is U-1,
+	U2 is U-2,
+	delayZero([U,U1,U2],Vs). 	% ensure 0 is the last choice.
+choiceList(L,false,Vs) :-
+	number(L),
+	!,
+	L1 is L+1,
+	L2 is L+2,
+	delayZero([L,L1,L2],Vs).	% ensure 0 is the last choice.
+choiceList(L,U,Vs) :-
+	number(L),
+	number(U),
+	choiceVals(L,U,3,Cs),		% Choose max 3 values
+	delayZero(Cs,Vs). 			% ensure 0 is the last choice.
+choiceList(false,false,[1,-1,0]).
+	
+choiceVals(L,U,J,[L|Cs]) :-
+	L=<U,
+	J>0,
+	L1 is L+1,
+	J1 is J-1,
+	choiceVals(L1,U,J1,Cs).
+choiceVals(L,U,_,[]) :-
+	L>U.
+choiceVals(_,_,J,[]) :-			
+	J=<0.
+	
+delayZero([0],[0]) :-
+	!.
+delayZero([X],[X]) :-
+	!.
+delayZero([0,X|Xs],[X|Vs]) :-
+	!,
+	delayZero([0|Xs],Vs).
+delayZero([X|Xs],[X|Vs]) :-
+	!,
+	delayZero(Xs,Vs).
+
+	
+bounds(Space,N0,V,L,U) :-
+	makePolyhedron(Space,H0),
+	raiseDimension(H0,N0),
+	(ppl_Polyhedron_maximize(H0,V,C1,C2,_TF1) ->
+		U is floor(C1/C2); U=false),
+	(ppl_Polyhedron_minimize(H0,V,C3,C4,_TF2) ->
+		L is ceiling(C3/C4); L=false).
+		
+instantiateRF(Point,N,RF) :-
+	rfTerms(Point,Ts),
+	rfExpr(Ts,N,RF).
+	
+rfTerms(['$VAR'(_)=0|Ps],Es) :-
+	!,
+	rfTerms(Ps,Es).
+rfTerms(['$VAR'(K)=V|Ps],[V*'$VAR'(K)|Es]) :-
+	rfTerms(Ps,Es).
+rfTerms([],[]).
+
+rfExpr([V*'$VAR'(K),T|Es],N,RF+T1) :-
+	(K is N-1 -> T1=V; T1=V*'$VAR'(K)),
+	rfExpr([T|Es],N,RF).
+rfExpr([V*'$VAR'(K)],N,T) :-
+	(K is N-1 -> T=V; T=V*'$VAR'(K)).
+	
+allBounds(Space,N0,Bounds) :-
+	makePolyhedron(Space,H0),
+	raiseDimension(H0,N0),
+	dimBounds(0,N0,H0,Bounds).
+	
+dimBounds(N0,N0,_,[]).
+dimBounds(K,N0,H0,['$VAR'(K)-(L,U)|Bounds]) :-
+	(ppl_Polyhedron_maximize(H0,'$VAR'(K),C1,C2,_TF1) ->
+		U is floor(C1/C2); U=false),
+	(ppl_Polyhedron_minimize(H0,'$VAR'(K),C3,C4,_TF2) ->
+		L is ceiling(C3/C4); L=false),
+	K1 is K+1,
+	dimBounds(K1,N0,H0,Bounds).
+	
+orderChoices(Bs,Cs) :-
+	constant(Bs,Bs1,Cs,Zs),
+	possiblyZero(Bs1,Bs2,Zs,NZs),
+	nonZero(Bs2,[],NZs,[]).
+	
+constant(Bs,Bs2,[V-(L,U)|Cs],Zs) :-
+	select(V-(L,U),Bs,Bs1),
+	L==U,L\==false,
+	!,
+	constant(Bs1,Bs2,Cs,Zs).
+constant(Bs,Bs,Zs,Zs).
+
+possiblyZero(Bs,Bs2,[V-(L,U)|Cs],Zs) :-
+	select(V-(L,U),Bs,Bs1),
+	containsZero(L,U),
+	!,
+	possiblyZero(Bs1,Bs2,Cs,Zs).
+possiblyZero(Bs,Bs,Zs,Zs).
+	
+nonZero(Bs,Bs2,[V-(L,U)|Cs],Zs) :-
+	select(V-(L,U),Bs,Bs1),
+	noZero(L,U),
+	!,
+	nonZero(Bs1,Bs2,Cs,Zs).
+nonZero(Bs,Bs,Zs,Zs).
+
+containsZero(false,false) :-
+	!.
+containsZero(false,U) :-
+	U>=0,
+	!.
+containsZero(L,false) :-
+	L=<0,
+	!.
+containsZero(L,U) :-
+	number(L),number(U),
+	U=<0,L>=0.
+	
+noZero(L,false) :-
+	number(L),
+	L>=1,
+	!.
+noZero(false,U) :-
+	number(U),
+	U=< -1,
+	!.
+noZero(L,U) :-
+	number(L),
+	number(U),
+	(L>=1; U=< -1).
 	
 % remove the k+1th variable if it is present since it represents the constant
 makeAffineFunction(F1, K, F) :-
@@ -780,7 +1032,6 @@ get_options([X|T],Options,Args) :-
 
 recognised_option('-prg',programO(R),[R]).
 recognised_option('-widenpoints',widenP(R),[R]).
-recognised_option('-widenout',widenO(R),[R]).
 recognised_option('-narrowout',narrowO(R),[R]).
 recognised_option('-narrowiterations',narrowiterationsO(R),[R]).
 recognised_option('-delaywidening',delaywiden(R),[R]).
@@ -794,20 +1045,15 @@ recognised_option('-detectwps',detectwps(M),[M]).
 recognised_option('-o',factFile(F),[F]).
 recognised_option('-cex',counterExample(F),[F]).
 recognised_option('-threshold',thresholdFile(F),[F]).
+recognised_option('-rank',rank,[]).
 
-set_options(Opts,O1,O13,File,FactFile) :-
+set_options(Opts,O1,O14,File,FactFile) :-
     member(programO(File),Opts),
     ( member(verbose,Opts) -> put(verbose,yes,O1,O2)
     ; O2=O1
     ),
-    ( member(debug_print,Opts) -> put(debug_print,yes,O2,O3)
-    ; O3=O2
-    ),
-    ( member(singlepoint,Opts) -> put(widenAt,singlepoint,O3,O4)
-    ; put(widenAt,allpoints,O3,O4)
-    ),
-    ( member(widenO(WOutput),Opts) -> put(outputFile,WOutput,O4,O5)
-    ; put(outputFile,widencns,O4,O5)
+    ( member(debug_print,Opts) -> put(debug_print,yes,O2,O5)
+    ; O5=O2
     ),
     ( member(widenF(WFunc),Opts) -> put(widenf,WFunc,O5,O6)
     ; put(widenf,h79,O5,O6)
@@ -837,6 +1083,9 @@ set_options(Opts,O1,O13,File,FactFile) :-
     ),
     ( member(nowpscalc,Opts) -> put(nowpscalc,yes,O12,O13)
     ; O13=O12
+    ),
+    ( member(rank,Opts) -> put(rank,yes,O13,O14)
+    ; O14=O13
     ).
     
 %%%% clean workspace
